@@ -403,7 +403,7 @@ public readonly struct Variant
             '\t' => "\\t",
             '\v' => "\\v",
             '\b' => "\\b",
-            '\x1b' => "\\e",
+            '\e' => "\\e",
             < ' ' or (> '~' and < '¡') => $"\\{(int)c + 0:x2}",
             '\\' or '"' => "\\" + c,
             _ => c.ToString()

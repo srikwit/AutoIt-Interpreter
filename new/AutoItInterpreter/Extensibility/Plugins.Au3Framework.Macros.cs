@@ -175,7 +175,7 @@ public sealed class AdditionalMacros
     {
         Random random = new();
 
-        RegisterMacro("ESC", "\x1b");
+        RegisterMacro("ESC", "\e");
         RegisterMacro("VTAB", "\v");
         RegisterMacro("NUL", "\0");
         RegisterMacro("DATE", _ => DateTime.Now.ToString("yyyy-MM-dd", null));

@@ -184,7 +184,7 @@ public static class ScriptVisualizer
 
         if (token.Type is TokenType.NewLine or TokenType.Whitespace)
         {
-            content = "\x1b[0m" + (print_linebreaks && token.Type is TokenType.NewLine ? "\n" : token.Content.Replace("\r\n", "\n"));
+            content = "\e[0m" + (print_linebreaks && token.Type is TokenType.NewLine ? "\n" : token.Content.Replace("\r\n", "\n"));
 
             if (!print_linebreaks)
                 content = content.Replace("\n", "");
@@ -192,7 +192,7 @@ public static class ScriptVisualizer
         else
             content = ColorScheme[token.Type].ToVT100ForegroundString() + token.Content;
 
-        return token.Type is TokenType.UNKNOWN ? $"\x1b[4m{content}\x1b[24m" : content;
+        return token.Type is TokenType.UNKNOWN ? $"\e[4m{content}\e[24m" : content;
     }
 }
 

@@ -151,14 +151,14 @@ strings:
     warning:
         warning: "WARNING"
         warning_in: "WARNING in {0}"
-        unable_to_update: "Unable to check for software updates. Please verify that you have a working Internet connection and that the URL \x1b[4m{0}\x1b[24m is accessible."
+        unable_to_update: "Unable to check for software updates. Please verify that you have a working Internet connection and that the URL \e[4m{0}\e[24m is accessible."
         unparsable_dirctive: "The directive '#{0}' is unknown or cannot be parsed. If you have a plugin for that directive, verify whether the .dll can be correctly loaded from the plugin-folder."
         com_unavailable: "Interactions with the COM (Component Object Model) framework are not possible on this platform. Currently, COM is only available to Windows-like platforms."
         deprecated_function: "The function '{0}' is considered to be deprecated and may be removed from future versions of the AutoIt interpreter."
     error:
         error_in: "ERROR in {0}"
         not_yet_implemented: "The functionality '{0}' has not yet been implemented. We're sorry :/"
-        update_failed: "The update {0} (published on {1}) could not be downloaded and installed from \x1b[4m{2}\x1b[24m. Please verify that you have a stable Internet connection and that the AutoIt-Interpreter has read/write access to its directory and sub-directories. A failure may indicate a corrupted installation and/or update."
+        update_failed: "The update {0} (published on {1}) could not be downloaded and installed from \e[4m{2}\e[24m. Please verify that you have a stable Internet connection and that the AutoIt-Interpreter has read/write access to its directory and sub-directories. A failure may indicate a corrupted installation and/or update."
         au3_caller_only: "The execution of the function '{0}' requires an Au3 (non-native) call frame."
         byref_default: "The ByRef-parameter '{0}' cannot have a default value."
         byref_invalid_variable: "The target '{0}' of the ByRef-expression could not be resolved. ByRef-expresions may only be used with already declared variables."

@@ -1,20 +1,19 @@
 ﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
 using System.IO;
 using System;
 
+using Unknown6656.AutoIt3.Parser.ExpressionParser;
 using Unknown6656.AutoIt3.Runtime.Native;
 using Unknown6656.AutoIt3.Runtime;
+
 using Unknown6656.Controls.Console;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using Unknown6656.Generics;
-using System.Threading.Tasks;
-using Unknown6656.AutoIt3.Parser;
-using Unknown6656.IO;
-using Unknown6656.AutoIt3.Parser.ExpressionParser;
 
 namespace Unknown6656.AutoIt3.CLI;
 
@@ -594,7 +593,7 @@ Commands and keyboard shortcuts:
 
             int idx = CurrentCursorPosition.GetOffset(CurrentInput.Length);
 
-            Console.Write($"\x1b[7m{(idx < CurrentInput.Length ? CurrentInput[idx] : ' ')}\x1b[27m");
+            Console.Write($"\e[7m{(idx < CurrentInput.Length ? CurrentInput[idx] : ' ')}\e[27m");
         }
 
         if (Suggestions.Count > 0)

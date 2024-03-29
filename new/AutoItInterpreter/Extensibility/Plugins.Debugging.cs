@@ -274,7 +274,7 @@ public sealed class DebuggingFunctionProvider
             bool sel = select?.Invoke(j) ?? false;
 
             if (sel)
-                sb.Append("\x1b[7m");
+                sb.Append("\e[7m");
 
             for (int i = 0; i < widths.Length; i++)
             {
@@ -292,7 +292,7 @@ public sealed class DebuggingFunctionProvider
             sb.Append('│');
 
             if (sel)
-                sb.Append("\x1b[27m");
+                sb.Append("\e[27m");
 
             sb.AppendLine();
         }

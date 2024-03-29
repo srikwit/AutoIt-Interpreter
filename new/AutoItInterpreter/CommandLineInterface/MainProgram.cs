@@ -21,13 +21,14 @@ using Unknown6656.AutoIt3.Runtime;
 
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using Unknown6656.Generics;
+using Unknown6656.IO;
 
 using OS = Unknown6656.AutoIt3.Runtime.Native.OS;
 using CLParser = CommandLine.Parser;
-using Unknown6656.IO;
+
 
 [assembly: AssemblyUsage(@"
   Run the interpreter quietly (only print the script's output):
@@ -54,7 +55,7 @@ using Unknown6656.IO;
   Use an other display language than English for the interpreter:
       autoit3 -l fr C:\User\Public\Script.au3
 
-  Visit " + "\x1b[4m" + __module__.RepositoryURL + "/wiki/Usage/\x1b[24m" + @" for more information.
+  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
 
 -------------------------------------------------------------------------------
 
@@ -79,13 +80,13 @@ public sealed class CommandLineOptions
     [Option('e', "ignore-errors", Default = false, HelpText = "Ignores syntax and evaluation errors during parsing (unsafe!). This can lead to undefined and non-deterministic behaviour.")]
     public bool IgnoreErrors { set; get; } = false;
 
-    [Option('t', "telemetry", Default = false, HelpText = "Prints the interpreter telemetry. A verbosity level of 'n' or 'v' will automatically set this flag.  NOTE: All telemetry data \x1b[4mstays\x1b[24m on this machine contrary to what this option might suggest. \x1b[4mNo part\x1b[24m of the telemetry will be uploaded to an external (web)server.")]
+    [Option('t', "telemetry", Default = false, HelpText = "Prints the interpreter telemetry. A verbosity level of 'n' or 'v' will automatically set this flag.  NOTE: All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might suggest. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server.")]
     public bool PrintTelemetry { set; get; } = false;
 
     [Option('v', "verbose", Default = false, HelpText = "Indicates that the interpreter should also print debug messages.")]
     public bool Verbose { set; get; } = false;
 
-    [Option('u', "check-for-update", Default = UpdaterMode.release, HelpText = "Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\x1b[4m" + __module__.RepositoryURL + "/releases\x1b[24m).")]
+    [Option('u', "check-for-update", Default = UpdaterMode.release, HelpText = "Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\e[4m" + __module__.RepositoryURL + "/releases\e[24m).")]
     public UpdaterMode UpdaterMode { set; get; } = UpdaterMode.release;
 
     [Option('l', "lang", Default = "en", HelpText = "The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.")]
@@ -407,7 +408,7 @@ public static class MainProgram
         {
             Console.WriteLine(help.Heading);
             Console.WriteLine(help.Copyright);
-            Console.WriteLine($"\x1b[4m{__module__.RepositoryURL}/\x1b[24m");
+            Console.WriteLine($"\e[4m{__module__.RepositoryURL}/\e[24m");
 
             help_requested = true;
         }
@@ -626,7 +627,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
             Console.WriteLine();
 
         ConsoleExtensions.RGBForegroundColor = COLOR_ERROR;
-        Console.WriteLine($"{message.TrimEnd()}\nIf you believe that this is a bug, please report it to \x1b[4m{__module__.RepositoryURL}/issues/new?template=bug_report.md\x1b[24m.");
+        Console.WriteLine($"{message.TrimEnd()}\nIf you believe that this is a bug, please report it to \e[4m{__module__.RepositoryURL}/issues/new?template=bug_report.md\e[24m.");
 
         if (CommandLineOptions.Verbose)
         {
@@ -1048,7 +1049,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
                         ConsoleExtensions.RGBForegroundColor = col_cpu_kernel;
                         ConsoleExtensions.RGBBackgroundColor = col_cpu_user;
                         ConsoleExtensions.WriteUnderlined(bars[(int)(Math.Min(.99, (hi - kernel) / (hi - lo)) * bars.Length)].ToString());
-                        Console.Write("\x1b[0m");
+                        Console.Write("\e[0m");
                     }
                     else
                     {
@@ -1112,7 +1113,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
                           | |
                           |_|  {lang?["banner.written_by", __module__.Author, __module__.Year]}
 {lang?["banner.version"]} v.{__module__.InterpreterVersion} ({__module__.GitHash})
-   {'\x1b'}[4m{__module__.RepositoryURL}/{'\x1b'}[24m 
+   {'\e'}[4m{__module__.RepositoryURL}/{'\e'}[24m 
 ");
                 ConsoleExtensions.RGBForegroundColor = RGBAColor.Crimson;
                 Console.Write("    ");
