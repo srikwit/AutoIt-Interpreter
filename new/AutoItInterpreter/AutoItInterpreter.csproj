@@ -26,7 +26,7 @@
 
         <Authors>Unknown6656</Authors>
         <Company>Unknown6656</Company>
-        <Copyright>Copyright © 2020, Unknown6656</Copyright>
+        <Copyright>Copyright © 2020-$([System.DateTime]::Today.ToString(yyyy)), Unknown6656</Copyright>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Product>Unknown6656 AutoIt3 Interpreter</Product>
         <PackageId>Unknown6656.AutoIt3</PackageId>
