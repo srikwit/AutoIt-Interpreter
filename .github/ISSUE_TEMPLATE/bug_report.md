@@ -1,6 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+assignees: Unknown6656
+labels: bug
 
 ---
 
@@ -17,12 +19,14 @@ Steps to reproduce the behavior:
 ### Expected behaviour
 A clear and concise description of what you expected to happen.
 
+### Stack Trace or Debug Log
+If applicable, insert the stack trace in a code block here.
+
 ### Screenshots
 If applicable, add screenshots to help explain your problem.
 
 ### Used system
- - OS: _[e.g. Windows 10 64Bit, Build № 42]_
- - Architecture: _[e.g. Intel/AMD x64]_
+ - OS and Architecture: _[e.g. Windows 10 64Bit, Build № 42] (this can be obtained using the command `ver` on windows or `uname -a` on linux)_
  - Interpreter Version: _The version can be found using the command `autoit --version`_
  - Commit hash: _The git commit hash can be found using the command `autoit --version`_
 
