@@ -162,6 +162,7 @@ public static class MainProgram
     public static int Start(string[] argv)
     {
         ConsoleExtensions.ThrowOnInvalidConsoleMode = false;
+        NativeInterop.DoPlatformDependent(() => Console.BufferHeight = short.MaxValue - 1, OS.Windows);
 
         if (!ConsoleExtensions.SupportsVTEscapeSequences)
         {
@@ -699,6 +700,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
             {
                 Console.WindowWidth = Math.Max(Console.WindowWidth, MIN_WIDTH);
                 Console.BufferWidth = Math.Max(Console.BufferWidth, Console.WindowWidth);
+                Console.BufferHeight = short.MaxValue - 1;
             }, OS.Windows);
 
             width = Math.Min(Console.WindowWidth, Console.BufferWidth);
