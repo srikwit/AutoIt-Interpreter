@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -639,6 +639,8 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
             ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
             Console.WriteLine(new string('_', Console.WindowWidth - 1));
         }
+
+        Console.Write("\e[0m");
     }));
 
     /// <summary>
@@ -672,6 +674,8 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
             Console.WriteLine(message.Trim());
             ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
         }
+
+        Console.Write("\e[0m");
     }));
 
     /// <summary>
