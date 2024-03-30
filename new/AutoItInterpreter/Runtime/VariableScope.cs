@@ -8,6 +8,7 @@ namespace Unknown6656.AutoIt3.Runtime;
 
 using static AST;
 
+
 /// <summary>
 /// Represents a collection of variables associated with a common scope.
 /// A scope can be the global variable scope (all variables declared on the global level), or a local scope (e.g. variables declared inside methods).

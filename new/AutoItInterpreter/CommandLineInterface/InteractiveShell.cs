@@ -921,7 +921,13 @@ public sealed class InteractiveShell
 
     public void Reset()
     {
-        // TODO : discard all objects
+        History.Clear();
+        HistoryScrollIndex = -1;
+        CurrentCursorPosition = 0;
+        CurrentInput = "";
+
+        Variables.DestroyAllVariables(true);
+        CallFrame.VariableResolver.DestroyAllVariables(true);
 
         Clear();
     }
