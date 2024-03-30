@@ -1,10 +1,10 @@
 ################################################################
-# Auto-generated 2024-03-31 00:33:17.027                       #
+# Auto-generated 2024-03-31 00:58:26.384                       #
 # ANY CHANGES TO THIS DOCUMENT WILL BE LOST UPON RE-GENERATION #
 ################################################################
 #
-# git commit: d3dd719f9234b3ee9a639e49216d21b664f26072
-version: 0.10.2216.8635
+# git commit: 5fb63d8c7131846018371c077a3089c33f10a8f6
+version: 0.10.2218.8635
 image: Visual Studio 2022
 configuration: Release
 before_build:

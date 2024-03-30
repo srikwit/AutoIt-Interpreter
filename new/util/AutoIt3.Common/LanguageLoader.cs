@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -94,7 +94,7 @@ public sealed class LanguageLoader
 public sealed class LanguagePack
 {
     private static readonly Regex REGEX_YAML = new(@"^(?<indent> *)(?<quote>""|)(?<key>[^"":]+)\k<quote> *: *(?<value>""(?<string>.*)""|true|false|[+\-]\d+|[+\-]0x[0-9a-f]+|null)? *(#.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntv0baf\\]|[xu][0-9a-fA-F]{1,4})", RegexOptions.Compiled);
+    private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\]|[xu][0-9a-fA-F]{1,4})", RegexOptions.Compiled);
     private static readonly Regex REGEX_QUOTE = new(@"""""", RegexOptions.Compiled);
 
     private readonly IDictionary<string, string> _strings;
@@ -199,6 +199,7 @@ public sealed class LanguagePack
                     '0' => '\0',
                     'b' => '\b',
                     'a' => '\a',
+                    'e' => '\e',
                     'f' => '\f',
                     '\\' => '\\',
                     _ => m_esc.ToString()
