@@ -74,7 +74,7 @@ public sealed class Telemetry
     private volatile bool _run_performancemonitor;
 
 
-    public (DateTime Timestamp, double TotalCPU, double UserCPU, double KernelCPU, long RAMUsed)[] PerformanceMeasurements => _performance_measurements.ToArray();
+    public (DateTime Timestamp, double TotalCPU, double UserCPU, double KernelCPU, long RAMUsed)[] PerformanceMeasurements => [.. _performance_measurements];
 
     public ReadOnlyIndexer<TelemetryCategory, IEnumerable<TimeSpan>> Timings { get; }
 
@@ -214,7 +214,7 @@ public sealed class TelemetryTimingsNode
     public bool IsHot => !IsRoot && PercentageOfParent > .1 && PercentageOfTotal > .01 && Siblings.All(s => s.PercentageOfParent < PercentageOfParent);
     public TelemetryTimingsNode Root { get; }
     public TelemetryTimingsNode Parent { get; }
-    public TelemetryTimingsNode[] Children => _children.ToArray();
+    public TelemetryTimingsNode[] Children => [.. _children];
     public TelemetryTimingsNode[] Siblings => IsRoot ? [] : Parent._children.Except(new[] { this }).ToArray();
     public TimeSpan[] Timings { get; }
     public TimeSpan Average { get; }

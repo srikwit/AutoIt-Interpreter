@@ -545,7 +545,7 @@ public readonly struct Variant
         // TODO : NET objects
         // TODO : COM objects
 
-        return output.ToArray();
+        return [.. output];
     }
 
     /// <summary>

@@ -41,7 +41,7 @@ public sealed class PluginLoader
         _macro_providers,
     }.Sum(p => p.Count());
 
-    public ImmutableHashSet<FileInfo> LoadedPluginFiles => _plugin_files.ToImmutableHashSet();
+    public ImmutableHashSet<FileInfo> LoadedPluginFiles => [.. _plugin_files];
 
     public AbstractInterpreterPlugin[] LoadedPlugins => _line_processors.Cast<AbstractInterpreterPlugin>()
                                                                         .Concat(_directive_processors)

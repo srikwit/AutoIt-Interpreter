@@ -150,7 +150,7 @@ public abstract class AbstractFunctionProvider
     private readonly Dictionary<string, NativeFunction> _known_functions;
 
 
-    public NativeFunction[] ProvidedFunctions => _known_functions.Values.ToArray();
+    public NativeFunction[] ProvidedFunctions => [.. _known_functions.Values];
 
 
     protected AbstractFunctionProvider(Interpreter interpreter)

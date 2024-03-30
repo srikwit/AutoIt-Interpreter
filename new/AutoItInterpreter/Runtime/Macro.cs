@@ -72,7 +72,7 @@ public sealed class MacroResolver
 
     public int KnownMacroCount => _macros.Count;
 
-    public ImmutableHashSet<KnownMacro> KnownMacros => _macros.ToImmutableHashSet();
+    public ImmutableHashSet<KnownMacro> KnownMacros => [.. _macros];
 
 
     internal MacroResolver(Interpreter interpreter) => Interpreter = interpreter;

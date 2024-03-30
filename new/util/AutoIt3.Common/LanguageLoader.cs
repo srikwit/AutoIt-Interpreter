@@ -9,11 +9,12 @@ using System;
 
 namespace Unknown6656.AutoIt3.Localization;
 
+
 public sealed class LanguageLoader
 {
     private readonly Dictionary<string, LanguagePack> _packs = [];
 
-    public string[] LoadedLanguageCodes => _packs.Keys.ToArray();
+    public string[] LoadedLanguageCodes => [.. _packs.Keys];
 
     public LanguagePack? CurrentLanguage { get; private set; }
 

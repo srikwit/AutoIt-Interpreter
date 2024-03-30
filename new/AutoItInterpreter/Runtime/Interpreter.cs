@@ -41,7 +41,7 @@ public sealed class Interpreter
     /// <b>[UNSAFE!]</b>
     /// Returns a collection of currently active interpreter instances.
     /// </summary>
-    public static Interpreter[] ActiveInstances => _instances.ToArray();
+    public static Interpreter[] ActiveInstances => [.. _instances];
 
     /// <summary>
     /// The interpreter's random number generator. The used generator can be reset and seeded using the methods <see cref="ResetRandom"/> and <see cref="ResetRandom(int)"/>.
@@ -56,7 +56,7 @@ public sealed class Interpreter
     /// <summary>
     /// A collection of currently active threads.
     /// </summary>
-    public AU3Thread[] Threads => _threads.ToArray();
+    public AU3Thread[] Threads => [.. _threads];
 
     /// <summary>
     /// The interpreter's <i>global</i> <see cref="VariableScope"/>. This scope contains all global variables.

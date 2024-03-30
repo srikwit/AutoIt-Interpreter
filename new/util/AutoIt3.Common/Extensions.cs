@@ -6,6 +6,8 @@ using System;
 namespace Unknown6656.AutoIt3.Common;
 
 
+// TODO : verify if these extensions are still needed. might be implemented in Unknown6656.Core
+
 public static unsafe partial class StreamExtensions
 {
     public static void WriteNullable<T>(this BinaryWriter writer, T? data) where T : unmanaged

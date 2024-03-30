@@ -21,7 +21,7 @@ public sealed class COMServer
     private readonly object _mutex = new();
     private volatile uint _nextid = 0;
 
-    public uint[] IDsInUse => _com_objects.Keys.ToArray();
+    public uint[] IDsInUse => [.. _com_objects.Keys];
 
 
     public COMServer() => COMData.RegisterCOMResolver(this);

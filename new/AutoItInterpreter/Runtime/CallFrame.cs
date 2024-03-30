@@ -332,7 +332,7 @@ public sealed class AU3CallFrame
     /// <summary>
     /// The current cache of ordered source code lines and their location.
     /// </summary>
-    public (SourceLocation LineLocation, string LineContent)[] CurrentLineCache => _line_cache.ToArray();
+    public (SourceLocation LineLocation, string LineContent)[] CurrentLineCache => [.. _line_cache];
 
     public override SourceLocation CurrentLocation => _instruction_pointer < 0 || _instruction_pointer >= _line_cache.Count ? CurrentFunction.Location : _line_cache[_instruction_pointer].LineLocation;
 

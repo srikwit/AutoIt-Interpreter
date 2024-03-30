@@ -20,12 +20,12 @@ public sealed class VariableScope
     private bool _isdisposed = false;
 
 
-    public VariableScope[] ChildScopes => _children.ToArray();
+    public VariableScope[] ChildScopes => [.. _children];
 
     /// <summary>
     /// Returns all variables declared in this scope. This value is sequentially equal to <see cref="GlobalVariables"/> if the current scope is the global variable scope.
     /// </summary>
-    public Variable[] LocalVariables => _variables.ToArray();
+    public Variable[] LocalVariables => [.. _variables];
 
     /// <summary>
     /// Returns all variables declared in the global scope associated with the current interpreter instance.
