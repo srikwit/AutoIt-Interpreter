@@ -2,6 +2,7 @@
 
 namespace Unknown6656.AutoIt3.Runtime;
 
+
 /// <summary>
 /// Represents a variable capable of holding a value of the type <see cref="Variant"/>.
 /// Variables are identified using their case-insensitive name and a '$'-prefix.
@@ -11,6 +12,7 @@ public sealed class Variable
 {
     private readonly object _mutex = new();
     private Variant _value;
+
 
     /// <summary>
     /// The variable's lower-case name without the '$'-prefix.

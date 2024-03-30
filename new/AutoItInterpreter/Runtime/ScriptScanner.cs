@@ -55,7 +55,7 @@ public sealed class ScriptScanner
         ResolveHTTP,
         ResolveFTP,
     ];
-    private readonly ConcurrentDictionary<string, ScriptFunction> _cached_functions = new();
+    private readonly ConcurrentDictionary<string, ScriptFunction> _cached_functions = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<int, ScannedScript> _cached_scripts = new();
 
 
@@ -88,12 +88,12 @@ public sealed class ScriptScanner
                 SystemScript.AddFunction(function);
 
         foreach ((string name, ScriptFunction func) in SystemScript.Functions)
-            _cached_functions.TryAdd(name.ToUpperInvariant(), func);
+            _cached_functions.TryAdd(name, func);
     });
 
     public ScriptFunction? TryResolveFunction(string name)
     {
-        _cached_functions.TryGetValue(name.ToUpperInvariant(), out ScriptFunction? func);
+        _cached_functions.TryGetValue(name, out ScriptFunction? func);
 
         return func;
     }
@@ -268,7 +268,7 @@ public sealed class ScriptScanner
                             return InterpreterError.WellKnown(loc, "error.reserved_name", name);
                         else if (!curr_func.IsMainFunction)
                             return InterpreterError.WellKnown(loc, "error.unexpected_func", curr_func.Name);
-                        else if (_cached_functions.TryGetValue(name.ToUpperInvariant(), out ScriptFunction? existing) && !existing.IsMainFunction)
+                        else if (_cached_functions.TryGetValue(name, out ScriptFunction? existing) && !existing.IsMainFunction)
                             return InterpreterError.WellKnown(loc, "error.duplicate_function", existing.Name, existing.Location);
 
                         IEnumerable<PARAMETER_DECLARATION> @params;
@@ -300,7 +300,7 @@ public sealed class ScriptScanner
                         curr_func = script.GetOrCreateAU3Function(name, @params);
                         curr_func.IsVolatile = mods.Contains("volatile", StringComparison.OrdinalIgnoreCase);
                         curr_func.IsCached = mods.Contains("cached", StringComparison.OrdinalIgnoreCase);
-                        _cached_functions.TryAdd(name.ToUpperInvariant(), curr_func);
+                        _cached_functions.TryAdd(name, curr_func);
 
                         if (MainProgram.CommandLineOptions.StrictMode && curr_func.IsCached)
                             return InterpreterError.WellKnown(loc, "error.experimental.cached_functions");
@@ -472,7 +472,7 @@ public sealed class ScannedScript
 
     public AU3Function GetOrCreateAU3Function(string name, IEnumerable<PARAMETER_DECLARATION>? @params)
     {
-        _functions.TryGetValue(name.ToUpperInvariant(), out ScriptFunction? func);
+        _functions.TryGetValue(name, out ScriptFunction? func);
 
         return func as AU3Function ?? AddFunction(new AU3Function(this, name, @params));
     }
@@ -480,7 +480,7 @@ public sealed class ScannedScript
     public T AddFunction<T>(T function)
         where T : ScriptFunction
     {
-        _functions[function.Name.ToUpperInvariant()] = function;
+        _functions[function.Name] = function;
 
         return function;
     }
@@ -539,7 +539,7 @@ public sealed class ScannedScript
 
     public bool Equals(ScannedScript? other) => other is ScannedScript script && GetHashCode() == script.GetHashCode();
 
-    public bool HasFunction(string name) => _functions.ContainsKey(name.ToUpperInvariant());
+    public bool HasFunction(string name) => _functions.ContainsKey(name);
 
     public static int GetHashCode(FileInfo location, string content) => HashCode.Combine(Path.GetFullPath(location.FullName), content);
 

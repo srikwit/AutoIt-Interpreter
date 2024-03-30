@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
@@ -12,7 +12,8 @@ namespace Unknown6656.AutoIt3.Localization;
 
 public sealed class LanguageLoader
 {
-    private readonly Dictionary<string, LanguagePack> _packs = [];
+    private readonly Dictionary<string, LanguagePack> _packs = new(StringComparer.OrdinalIgnoreCase);
+
 
     public string[] LoadedLanguageCodes => [.. _packs.Keys];
 
@@ -54,7 +55,7 @@ public sealed class LanguageLoader
         try
         {
             LanguagePack lang = LanguagePack.FromYAML(yaml);
-            string code = lang.LanguageCode.ToLowerInvariant();
+            string code = lang.LanguageCode;
 
             lang.FilePath = path;
 
@@ -69,9 +70,9 @@ public sealed class LanguageLoader
         }
     }
 
-    public void HasLanguagePack(string code) => _packs.ContainsKey(code.ToLowerInvariant());
+    public void HasLanguagePack(string code) => _packs.ContainsKey(code);
 
-    public bool TryGetLanguagePack(string code, out LanguagePack? pack) => _packs.TryGetValue(code.ToLowerInvariant(), out pack);
+    public bool TryGetLanguagePack(string code, out LanguagePack? pack) => _packs.TryGetValue(code, out pack);
 
     public bool TrySetCurrentLanguagePack(string code)
     {
@@ -99,7 +100,7 @@ public sealed class LanguagePack
     private readonly IDictionary<string, string> _strings;
 
 
-    public string this[string key, params object?[] args] => TryGetString(key, args, out string? s) ? s! : $"[{key.ToUpperInvariant()}]";
+    public string this[string key, params object?[] args] => TryGetString(key, args, out string? s) ? s! : $"[{key.ToUpper()}]";
 
     internal string FilePath { get; set; } = "";
 
