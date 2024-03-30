@@ -1,2 +1,17 @@
 #!/bin/sh
-dotnet autoit3.dll "$@"
+
+if ! command -v dotnet > /dev/null 2>&1 ; then
+    COL_RED='\033[0;31m'
+    COL_RESET='\033[0m'
+
+    echo "${COL_RED}"
+    echo "--------------------------------------------------"
+    echo "Command 'dotnet' not found. Go to https://dot.net"
+    echo "      to install the .NET Core runtime."
+    echo "--------------------------------------------------"
+    echo "${COL_RESET}"
+
+    exit 1
+else
+    dotnet autoit3.dll "$@"
+fi
