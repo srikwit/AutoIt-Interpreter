@@ -313,7 +313,7 @@ public static class MainProgram
                     }
                     else if (opt.FilePath is string path)
                     {
-                        Union<InterpreterError, ScannedScript> resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, path, false);
+                        Union<InterpreterError, ScannedScript> resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, path, true);
                         InterpreterError? error = null;
 
                         if (resolved.Is(out ScannedScript? script))

@@ -8,6 +8,7 @@ using Unknown6656.Generics;
 
 namespace Unknown6656.AutoIt3.Runtime;
 
+
 public sealed class FunctionCache
 {
     private readonly Dictionary<AU3Function, List<(Variant[] Arguments, FunctionReturnValue ReturnValue)>> _cache = [];

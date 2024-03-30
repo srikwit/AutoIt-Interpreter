@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Collections.Generic;
@@ -98,7 +98,7 @@ public sealed class ScriptScanner
         return func;
     }
 
-    public Union<InterpreterError, (FileInfo physical_file, string content)> ResolveScriptFile(SourceLocation include_loc, string path, bool relative)
+    public Union<InterpreterError, (FileInfo physical_file, string content)> ResolveScriptFile(SourceLocation include_loc, string path, bool relative_to_userdir)
     {
         (FileInfo physical, string content)? file = Interpreter.Telemetry.Measure<(FileInfo, string)?>(TelemetryCategory.ResolveScript, delegate
         {
@@ -136,16 +136,29 @@ public sealed class ScriptScanner
         if (file is { })
             return file;
 
-        string combined = Path.Combine(MainProgram.INCLUDE_DIR.FullName, path);
+        string dir = MainProgram.INCLUDE_DIR.FullName;
 
-        if (relative && combined != path && ResolveScriptFile(include_loc, combined, false).Is(out file) && file is { })
+        if (relative_to_userdir)
+            try
+            {
+                dir = Path.GetDirectoryName(include_loc.FullFileName) ?? dir;
+            }
+            catch
+            {
+            }
+
+        string combined = Path.Combine(dir, path);
+
+        if (combined != path && ResolveScriptFile(include_loc, combined, false).Is(out file) && file is { })
             return file;
-
-        return InterpreterError.WellKnown(include_loc, "error.unresolved_script", path);
+        else if (relative_to_userdir)
+            return ResolveScriptFile(include_loc, path, false);
+        else
+            return InterpreterError.WellKnown(include_loc, "error.unresolved_script", path);
     }
 
-    public Union<InterpreterError, ScannedScript> ScanScriptFile(SourceLocation include_loc, string path, bool relative) =>
-        ResolveScriptFile(include_loc, path, relative).Match<Union<InterpreterError, ScannedScript>>(e => e, file => ProcessScriptFile(file.physical_file, file.content));
+    public Union<InterpreterError, ScannedScript> ScanScriptFile(SourceLocation include_loc, string path, bool relative_to_userdir) =>
+        ResolveScriptFile(include_loc, path, relative_to_userdir).Match<Union<InterpreterError, ScannedScript>>(e => e, file => ProcessScriptFile(file.physical_file, file.content));
 
     internal Union<InterpreterError, ScannedScript> ProcessScriptFile(FileInfo file, string content) =>
         Interpreter.Telemetry.Measure<Union<InterpreterError, ScannedScript>>(TelemetryCategory.ScanScript, delegate

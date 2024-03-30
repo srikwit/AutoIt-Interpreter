@@ -596,12 +596,12 @@ public sealed class AU3CallFrame
                 {
                     char open = groups["open"][0];
                     char close = groups["close"][0];
-                    bool relative = open != '<';
+                    bool relative_to_userdir = open != '<';
 
                     if (open != close && open != '<' && close != '>')
                         return WellKnownError("error.mismatched_quotes", open, close);
 
-                    return Interpreter.ScriptScanner.ScanScriptFile(CurrentLocation, groups["path"], relative).Match(FunctionReturnValue.Fatal, script =>
+                    return Interpreter.ScriptScanner.ScanScriptFile(CurrentLocation, groups["path"], relative_to_userdir).Match(FunctionReturnValue.Fatal, script =>
                     {
                         ScannedScript[] active = Interpreter.ScriptScanner.ActiveScripts;
 
