@@ -270,6 +270,7 @@ public sealed class AU3CallFrame
     private static readonly Regex REGEX_WEND = new(@"^wend$", _REGEX_OPTIONS);
     private static readonly Regex REGEX_NEXT = new(@"^next$", _REGEX_OPTIONS);
     private static readonly Regex REGEX_CLEAR = new(@"^clear$", _REGEX_OPTIONS);
+    private static readonly Regex REGEX_RESET = new(@"^reset", _REGEX_OPTIONS);
     internal static readonly Regex REGEX_EXIT = new(@"^exit(\b\s*(?<code>.+))?$", _REGEX_OPTIONS);
     private static readonly Regex REGEX_RETURN = new(@"^return(\b\s*(?<value>.+))?$", _REGEX_OPTIONS);
     private static readonly Regex REGEX_DELETE = new(@"^delete\b\s*(?<value>.+)$", _REGEX_OPTIONS);
@@ -715,6 +716,17 @@ public sealed class AU3CallFrame
                 }
                 else
                     return WellKnownError("error.unexpected_clear");
+            },
+            [REGEX_RESET] = _ =>
+            {
+                if (InteractiveShell.Instances is { Count: > 0 } shells)
+                {
+                    shells.Do(i => i.Reset());
+
+                    return Variant.Zero;
+                }
+                else
+                    return WellKnownError("error.unexpected_reset");
             },
             [REGEX_EXIT] = m =>
             {

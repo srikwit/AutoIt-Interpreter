@@ -7,6 +7,7 @@ using System.IO;
 using System;
 
 using Unknown6656.AutoIt3.Parser.ExpressionParser;
+using Unknown6656.AutoIt3.Localization;
 using Unknown6656.AutoIt3.Runtime.Native;
 using Unknown6656.AutoIt3.Runtime;
 
@@ -28,27 +29,21 @@ public sealed class InteractiveShell
     private static readonly RGBAColor COLOR_HELP_FG = 0xffff;
     private static readonly RGBAColor COLOR_SEPARATOR = 0xfaaa;
     private static readonly RGBAColor COLOR_PROMPT = 0xffff;
-    private static readonly string HELP_TEXT = $@"
-Commands and keyboard shortcuts:
-                                                       [PAGE UP/DOWN]     Scroll history up/down
-  [F5]             Repeat previous line                [ARROW LEFT/RIGHT] Navigate inside the text. Use
-  [F6]             Repeat next line                                       the [CTRL]-key to jump by words
-  [ENTER]          Execute current input               [ARROW UP/DOWN]    Select code suggestion
-  [SHIFT]+[ENTER]  Enter a line break                  [TAB]              Insert selected code suggestion
-  ""EXIT""           Exit the interactive environment    ""CLEAR""            Clear the history window
-".Trim();
     private static readonly int MAX_SUGGESTIONS = 8;
     private static readonly int MARGIN_RIGHT = 50;
-    private static readonly int MARGIN_TOP = HELP_TEXT.Count(c => c is '\n') + 1;
+    private static readonly int MARGIN_TOP = 8;
     private int MARGIN_BOTTOM => MAX_SUGGESTIONS + 5; // Suggestions.Count == 0 ? 2 : 5 + Math.Min(MAX_SUGGESTIONS, Suggestions.Count);
     private static int WIDTH => Console.WindowWidth;
     private static int HEIGHT => Console.WindowHeight;
 
+    private readonly string[] _helptext;
     private readonly FileInfo _interactive_tmp_path;
 
     private Index _current_cursor_pos = ^0;
     private bool _isdisposed;
 
+
+    public static LanguagePack CurrentLanguage => MainProgram.LanguageLoader.CurrentLanguage ?? throw new NotImplementedException("TODO : load default lang or something...");
 
     /// <summary>
     /// Returns an enumeration of all currently active <see cref="InteractiveShell"/> instances.
@@ -148,6 +143,7 @@ Commands and keyboard shortcuts:
         Thread = interpreter.CreateNewThread();
         CallFrame = Thread.PushAnonymousCallFrame();
         Variables = Thread.CurrentVariableResolver;
+        _helptext = CreateHelpText();
     }
 
     ~InteractiveShell() => Dispose(disposing: false);
@@ -497,7 +493,84 @@ Commands and keyboard shortcuts:
         }
     }
 
-    private static void RedrawHelp()
+    private static string[] CreateHelpText()
+    {
+        const int width = 18;
+
+        static string create_key_string(string[] keys)
+        {
+            List<ScriptToken> tokens = new();
+            int offs = 0;
+
+            foreach (string key in keys)
+            {
+                if (offs > 0)
+                    tokens.Add(new(0, offs++, 1, "+", TokenType.Operator));
+
+                tokens.Add(new(0, offs, 1, "[", TokenType.Symbol));
+                tokens.Add(new(0, offs + 1, key.Length, key, TokenType.Number));
+                tokens.Add(new(0, offs + key.Length + 1, 1, "]", TokenType.Symbol));
+
+                offs += key.Length + 2;
+            }
+
+            string padding = new(' ', width - keys.Select(k => $"[{k}]").StringJoin("+").Length);
+
+            return ScriptVisualizer.ConvertToVT100(tokens, false) + padding;
+        }
+        static string create_command_string(string command)
+        {
+            string padding = new(' ', width - command.Length);
+
+            return ScriptVisualizer.ConvertToVT100([
+                new(0, 0, command.Length, command, TokenType.Keyword)
+            ], false) + padding;
+        }
+
+        (Union<string[], string> keys, string helptext) key(string[] keys, string helptext) => (keys, helptext);
+        (Union<string[], string> keys, string helptext) command(string command, string helptext) => (command, helptext);
+        (Union<string[], string> keys, string helptext)[] entries = [
+            key(["F5"], "repeat_previous"),
+            key(["PAGE UP/DOWN"], "history_scroll"),
+
+            key(["F6"], "repeat_next"),
+            key(["ARROW LEFT/RIGHT"], "text_navigation"),
+
+            key(["ENTER"], "execute_current"),
+            key(["CTRL", "ARROW L/R"], "text_word_navigation"),
+
+            key(["SHIFT", "ENTER"], "enter_line_break"),
+            command("CLEAR", "clear"),
+
+            key(["ARROW UP/DOWN"], "select_suggestion"),
+            command("RESET", "reset_all"),
+
+            key(["TAB"], "insert_suggestion"),
+            command("EXIT", "exit")
+        ];
+        StringBuilder help_text = new();
+        bool newline = false;
+
+        help_text.Append(CurrentLanguage["interactive.keyboard_help.header"])
+                 .AppendLine(":\n");
+
+        foreach ((Union<string[], string> keys, string helptext) in entries)
+        {
+            help_text.Append(' ')
+                     .Append(keys.Match(create_key_string, create_command_string))
+                     .Append("\e[0m ")
+                     .Append(CurrentLanguage["interactive.keyboard_help." + helptext].PadRight(45));
+
+            if (newline)
+                help_text.AppendLine();
+
+            newline ^= true;
+        }
+
+        return help_text.ToString().SplitIntoLines();
+    }
+
+    private void RedrawHelp()
     {
         ConsoleExtensions.RGBForegroundColor = COLOR_HELP_FG;
         Console.CursorTop = 0;
@@ -506,7 +579,7 @@ Commands and keyboard shortcuts:
         int width = WIDTH;
         int height = HEIGHT;
 
-        foreach (string line in HELP_TEXT.SplitIntoLines())
+        foreach (string line in _helptext)
         {
             Console.Write(line.TrimEnd());
             Console.WriteLine(new string(' ', width - Console.CursorLeft - 1));
@@ -846,6 +919,13 @@ Commands and keyboard shortcuts:
         HistoryScrollIndex = 0;
     }
 
+    public void Reset()
+    {
+        // TODO : discard all objects
+
+        Clear();
+    }
+
     /// <summary>
     /// Requests the interactive shell to be exited.
     /// </summary>
@@ -912,6 +992,7 @@ Commands and keyboard shortcuts:
         List<(ScriptToken[] tokens, string content)> suggestions =
         [
             //(new[] { ScriptToken.FromString("CLEAR", TokenType.Keyword) }, "clear"),
+            //(new[] { ScriptToken.FromString("RESET", TokenType.Keyword) }, "reset"),
         ];
 
         void add_suggestions(IEnumerable<string> suggs, TokenType type) => suggs.Select(s => (new[] { ScriptToken.FromString(s, type) }, s)).AppendToList(suggestions);

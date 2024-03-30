@@ -29,7 +29,7 @@ public abstract class ScriptFunction
         "_", "$_", VARIABLE.Discard.Name, "$GLOBAL", "GLOBAL", "STATIC", "CONST", "DIM", "REDIM", "ENUM", "STEP", "LOCAL", "FOR", "IN",
         "NEXT", "TO", "FUNC", "ENDFUNC", "DO", "UNTIL", "WHILE", "WEND", "IF", "THEN", "ELSE", "ENDIF", "ELSEIF", "SELECT", "ENDSELECT",
         "CASE", "SWITCH", "ENDSWITCH", "WITH", "ENDWITH", "CONTINUECASE", "CONTINUELOOP", "EXIT", "EXITLOOP", "CACHED", "VOLATILE",
-        "RETURN", "TRUE", "FALSE", "DEFAULT", "NULL", "BYREF", "REF", "AND", "OR", "NOT", "CLEAR", "NEW", "DELETE", "CLASS",
+        "RETURN", "TRUE", "FALSE", "DEFAULT", "NULL", "BYREF", "REF", "AND", "OR", "NOT", "CLEAR", "NEW", "DELETE", "CLASS", "RESET",
     ];
 
 
