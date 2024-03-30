@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -43,8 +43,6 @@ using CLParser = CommandLine.Parser;
       autoit3 ""\\192.168.0.1\Public Documents\My Script.au3""
       autoit3 https://example.com/my-script.au3
       autoit3 ftp://username:password@example.com/path/to/script.au3
-      autoit3 ssh://username:password@example.com/~/Documents/my_script.au3
-      autoit3 scp://username:password@192.168.0.100:22/script.au3
   
   Run the interpreter in interactive mode:
       autoit3 -m interactive
@@ -92,7 +90,7 @@ public sealed class CommandLineOptions
     [Option('l', "lang", Default = "en", HelpText = "The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.")]
     public string Language { set; get; } = "en";
 
-    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/SFTP/SCP/SSH/...).")]
+    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/...).")]
     public string? FilePath { set; get; } = null;
 
 #pragma warning disable CA1819 // Properties should not return arrays

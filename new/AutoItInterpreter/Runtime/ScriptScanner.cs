@@ -1,5 +1,3 @@
-﻿//#define SUPPORT_SSH
-
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -8,9 +6,9 @@ using System.Linq;
 using System.IO;
 using System;
 
+using Unknown6656.Generics;
 using Unknown6656.Common;
 using Unknown6656.IO;
-using Unknown6656.Generics;
 
 using Unknown6656.AutoIt3.Parser.ExpressionParser;
 using Unknown6656.AutoIt3.Runtime.Native;
@@ -18,6 +16,7 @@ using Unknown6656.AutoIt3.Extensibility;
 using Unknown6656.AutoIt3.CLI;
 
 namespace Unknown6656.AutoIt3.Runtime;
+
 
 using static AST;
 
@@ -55,9 +54,6 @@ public sealed class ScriptScanner
         ResolveUNC,
         ResolveHTTP,
         ResolveFTP,
-#if SUPPORT_SSH
-        ResolveSSH,
-#endif
     ];
     private readonly ConcurrentDictionary<string, ScriptFunction> _cached_functions = new();
     private readonly ConcurrentDictionary<int, ScannedScript> _cached_scripts = new();
@@ -427,9 +423,6 @@ public sealed class ScriptScanner
     private static (FileInfo physical, string content)? ResolveHTTP(string path) => (new FileInfo(path), DataStream.FromWebResource(new Uri(path)).ToString());
 
     private static (FileInfo physical, string content)? ResolveFTP(string path) => (new FileInfo(path), DataStream.FromFTP(path).ToString());
-#if SUPPORT_SSH
-    private static (FileInfo physical, string content)? ResolveSSH(string path) => (new FileInfo(path), DatastreamExtensions.FromSSH(path).ToString());
-#endif
 }
 
 /// <summary>
