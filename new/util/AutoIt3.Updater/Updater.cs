@@ -21,7 +21,7 @@ public static class Updater
                 ProcessStartInfo psi = new()
                 {
                     FileName = "dotnet",
-                    UseShellExecute = false,
+                    UseShellExecute = false, // TODO : check if this works under linux and macos
                 };
 
                 psi.ArgumentList.Add(typeof(Updater).Assembly.Location);

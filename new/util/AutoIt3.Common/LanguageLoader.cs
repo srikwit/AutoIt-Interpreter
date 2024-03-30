@@ -109,7 +109,7 @@ public sealed class LanguagePack
 
     public bool IsBeta => !bool.TryParse(_strings["meta.beta"], out bool beta) || beta;
 
-    public string Author => _strings.TryGetValue("meta.author", out string auth) ? auth : "unknown6656";
+    public string Author => (_strings.TryGetValue("meta.author", out string? auth) ? auth : null) ?? "unknown6656";
 
 
     private LanguagePack(IDictionary<string, string> strings) => _strings = strings;
@@ -187,10 +187,10 @@ public sealed class LanguagePack
                 int i = m_esc.Index;
                 string esc = m_esc.Groups["esc"].Value;
 
-                sb.Append(value.Remove(i));
+                sb.Append(value[..i]);
                 sb.Append(esc[0] switch
                 {
-                    'x' or 'u' when short.TryParse(esc.Substring(1), NumberStyles.HexNumber, null, out short s) => (char)s,
+                    'x' or 'u' when short.TryParse(esc[1..], NumberStyles.HexNumber, null, out short s) => (char)s,
                     'r' => '\r',
                     'n' => '\n',
                     't' => '\t',
@@ -203,14 +203,14 @@ public sealed class LanguagePack
                     _ => m_esc.ToString()
                 });
 
-                value = value.Substring(i + m_esc.Length);
+                value = value[(i + m_esc.Length)..];
             }
             else if (REGEX_QUOTE.Match(value) is { Success: true } m_quote)
             {
                 int i = m_quote.Index;
 
-                sb.Append(value.Remove(i));
-                value = value.Substring(i + 2);
+                sb.Append(value[..i]);
+                value = value[(i + 2)..];
             }
             else
             {
