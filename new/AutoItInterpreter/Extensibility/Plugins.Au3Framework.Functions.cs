@@ -99,7 +99,7 @@ public sealed class FrameworkFunctions
         RegisterFunction(nameof(Call), 1, 256, Call);
         RegisterFunction(nameof(ConsoleWrite), 1, ConsoleWrite);
         RegisterFunction(nameof(ConsoleWriteError), 1, ConsoleWriteError);
-        RegisterFunction(nameof(ConsoleRead), 2, ConsoleRead);
+        RegisterFunction(nameof(ConsoleRead), 0, 2, ConsoleRead);
         RegisterFunction(nameof(DirCreate), 1, DirCreate);
         RegisterFunction(nameof(DirCopy), 2, 3, DirCopy, Variant.Zero);
         RegisterFunction(nameof(DirGetSize), 1, 2, DirGetSize, Variant.Zero);
