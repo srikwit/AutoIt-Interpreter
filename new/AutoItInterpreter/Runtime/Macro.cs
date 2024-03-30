@@ -7,6 +7,7 @@ using Unknown6656.AutoIt3.Extensibility;
 
 namespace Unknown6656.AutoIt3.Runtime;
 
+
 /// <summary>
 /// Represents an AutoIt3 macro.
 /// Macros are identified using their case-insensitive name and a '@'-prefix.
@@ -30,7 +31,7 @@ public class Macro
     internal Macro(Interpreter interpreter, string name)
     {
         Interpreter = interpreter;
-        Name = name.TrimStart('@').ToUpperInvariant();
+        Name = name.TrimStart('@').ToUpper();
     }
 
     public virtual Variant GetValue(CallFrame frame)

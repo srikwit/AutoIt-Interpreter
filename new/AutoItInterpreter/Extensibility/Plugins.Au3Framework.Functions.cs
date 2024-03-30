@@ -432,7 +432,7 @@ public sealed class FrameworkFunctions
             return rotated;
         }
 
-        return args[2].ToString().ToUpperInvariant() switch
+        return args[2].ToString().ToUpper() switch
         {
             "B" => rotate(8),
             "W" => rotate(16),

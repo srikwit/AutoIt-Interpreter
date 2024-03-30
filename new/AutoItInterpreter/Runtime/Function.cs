@@ -71,7 +71,7 @@ public abstract class ScriptFunction
         Script.AddFunction(this);
     }
 
-    public override int GetHashCode() => HashCode.Combine(Name.ToUpperInvariant(), Script);
+    public override int GetHashCode() => HashCode.Combine(Name.ToUpper(), Script);
 
     public override bool Equals(object? obj) => Equals(obj as ScriptFunction);
 
@@ -92,7 +92,7 @@ public sealed class AU3Function
     : ScriptFunction
 {
     private readonly ConcurrentDictionary<SourceLocation, List<string>> _lines = new();
-    private readonly ConcurrentDictionary<string, JumpLabel> _jumplabels = new();
+    private readonly ConcurrentDictionary<string, JumpLabel> _jumplabels = new(StringComparer.OrdinalIgnoreCase);
 
 
     /// <summary>
@@ -158,7 +158,7 @@ public sealed class AU3Function
     {
         Parameters = @params?.ToArray() ?? [];
         ParameterCount = (Parameters.Count(p => !p.IsOptional), Parameters.Length);
-        JumpLabels = new ReadOnlyIndexer<string, JumpLabel?>(name => _jumplabels.TryGetValue(name.ToUpperInvariant(), out JumpLabel? label) ? label : null);
+        JumpLabels = new ReadOnlyIndexer<string, JumpLabel?>(name => _jumplabels.TryGetValue(name, out JumpLabel? label) ? label : null);
     }
 
     /// <summary>
@@ -169,9 +169,9 @@ public sealed class AU3Function
     /// <returns>The newly created jump label.</returns>
     public JumpLabel AddJumpLabel(SourceLocation location, string name)
     {
-        name = name.Trim().ToUpperInvariant();
+        name = name.Trim();
 
-        JumpLabel label = new(this, location, name);
+        JumpLabel label = new(this, location, name.ToUpper());
 
         _jumplabels.AddOrUpdate(name, label, (_, _) => label);
 
