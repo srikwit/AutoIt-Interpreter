@@ -384,6 +384,7 @@ public static class MainProgram
 
         ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
         ConsoleExtensions.RestoreConsoleState(state);
+        Console.Write("\e[0m");
 
         return code;
     }
