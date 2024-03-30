@@ -157,6 +157,7 @@ strings:
         deprecated_function: "The function '{0}' is considered to be deprecated and may be removed from future versions of the AutoIt interpreter."
     error:
         error_in: "ERROR in {0}"
+        please_report_bug: "If you believe that this is a bug, please report it to {0}."
         not_yet_implemented: "The functionality '{0}' has not yet been implemented. We're sorry :/"
         update_failed: "The update {0} (published on {1}) could not be downloaded and installed from \e[4m{2}\e[24m. Please verify that you have a stable Internet connection and that the AutoIt-Interpreter has read/write access to its directory and sub-directories. A failure may indicate a corrupted installation and/or update."
         au3_caller_only: "The execution of the function '{0}' requires an Au3 (non-native) call frame."

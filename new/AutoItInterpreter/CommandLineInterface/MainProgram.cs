@@ -627,7 +627,12 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
             Console.WriteLine();
 
         ConsoleExtensions.RGBForegroundColor = COLOR_ERROR;
-        Console.WriteLine($"{message.TrimEnd()}\nIf you believe that this is a bug, please report it to \e[4m{__module__.RepositoryURL}/issues/new?template=bug_report.md\e[24m.");
+
+        const string report_url = $"\e[4m{__module__.RepositoryURL}/issues/new?template=bug_report.md\e[24m";
+        string please_report = LanguageLoader.CurrentLanguage?["error.please_report_bug", report_url] ?? $"If you believe that this is a bug, please report it to {report_url}.";
+
+        Console.WriteLine(message.TrimEnd());
+        Console.WriteLine(please_report);
 
         if (CommandLineOptions.Verbose)
         {
