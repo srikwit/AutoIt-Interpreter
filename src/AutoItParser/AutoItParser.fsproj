@@ -1,15 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>autoit3.exprparser</AssemblyName>
+        <RootNamespace>Unknown6656.AutoIt3.Parser</RootNamespace>
         <OutDir>$(SolutionDir)bin</OutDir>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>preview</LangVersion>
+
         <Deterministic>false</Deterministic>
         <PublishTrimmed>true</PublishTrimmed>
         <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-        <RootNamespace>Unknown6656.AutoIt3.Parser</RootNamespace>
+
         <Authors>Unknown6656</Authors>
         <Company>Unknown6656</Company>
-        <Copyright>Copyright © 2020, Unknown6656</Copyright>
+        <Copyright>Copyright © 2020-$([System.DateTime]::Today.ToString(yyyy)), Unknown6656</Copyright>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Product>Unknown6656 AutoIt3 Expression Parser</Product>
         <PackageId>Unknown6656.AutoIt3.Parser</PackageId>
@@ -17,7 +20,6 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <RepositoryUrl>https://github.com/Unknown6656/AutoIt-Interpreter</RepositoryUrl>
-        <AssemblyName>autoit3.exprparser</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="Util.fs" />
@@ -28,11 +30,11 @@
         <Compile Include="Cleanup.fs" />
     </ItemGroup>
     <ItemGroup>
-      <Reference Include="Piglet">
-        <HintPath>..\lib\Piglet.dll</HintPath>
-      </Reference>
-      <Reference Include="Piglet.FSharp">
-        <HintPath>..\lib\Piglet.FSharp.dll</HintPath>
-      </Reference>
+        <Reference Include="Piglet">
+            <HintPath>$(SolutionDir)lib/Piglet.dll</HintPath>
+        </Reference>
+        <Reference Include="Piglet.FSharp">
+            <HintPath>$(SolutionDir)lib/Piglet.FSharp.dll</HintPath>
+        </Reference>
     </ItemGroup>
 </Project>
