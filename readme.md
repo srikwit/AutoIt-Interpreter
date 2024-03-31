@@ -6,8 +6,8 @@
 ![forks](https://img.shields.io/github/forks/Unknown6656/AutoIt-Interpreter)
 ![stars](https://img.shields.io/github/stars/Unknown6656/AutoIt-Interpreter)
 
-<img alt="Banner image" src="new/artwork/banner.png" width="700"/><br/>
-<img alt="Banner image" src="new/artwork/banner-features.png" width="700"/>
+<img alt="Banner image" src="artwork/banner.png" width="700"/><br/>
+<img alt="Banner image" src="artwork/banner-features.png" width="700"/>
 
 [<img height="40px" src="https://1.bp.blogspot.com/-xGKUeWbY4QM/XUT0SkEHA2I/AAAAAAAAMDw/ZqiiVJahC34FYVc-02AhH0M0cqkNuT3EwCEwYBhgL/s1600/Free%2BDownload%2BButtons%2BPNG%2B%25288%2529.png"/>](https://github.com/Unknown6656/AutoIt-Interpreter/releases)
 
@@ -26,7 +26,6 @@ The Interpreter does support a plugin-based extension system in order to provide
 ## Links
 
  - [Wiki](https://github.com/Unknown6656/AutoIt-Interpreter/wiki)
- - [Code Overview](./new)
  - [.NET 8 developement progress](https://github.com/Unknown6656/AutoIt-Interpreter/projects/1)
  - [Issues](https://github.com/Unknown6656/AutoIt-Interpreter/issues)
  - [Official AutoIt3 documentation](https://www.autoitscript.com/autoit3/docs/)
