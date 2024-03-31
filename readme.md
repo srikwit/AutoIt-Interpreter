@@ -26,8 +26,8 @@ The Interpreter does support a plugin-based extension system in order to provide
 ## Links
 
  - [Wiki](https://github.com/Unknown6656/AutoIt-Interpreter/wiki)
- - [.NET 8 developement progress](https://github.com/Unknown6656/AutoIt-Interpreter/projects/1)
  - [Issues](https://github.com/Unknown6656/AutoIt-Interpreter/issues)
+ - [Developement Progress](https://github.com/Unknown6656/AutoIt-Interpreter/projects/1)
  - [Official AutoIt3 documentation](https://www.autoitscript.com/autoit3/docs/)
 
 
