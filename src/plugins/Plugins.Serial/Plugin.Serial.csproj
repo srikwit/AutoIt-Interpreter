@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net8.0-windows</TargetFramework>
-		<EnablePreviewFeatures>true</EnablePreviewFeatures>
+        <TargetFramework>net8.0</TargetFramework>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <Nullable>enable</Nullable>
         <OutDir>$(SolutionDir)bin/plugins</OutDir>
-        <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>preview</LangVersion>
         <Deterministic>true</Deterministic>
         <PublishTrimmed>true</PublishTrimmed>
@@ -16,6 +15,9 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../../AutoItInterpreter/AutoItInterpreter.csproj">
             <Private>false</Private>
