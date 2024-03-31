@@ -187,16 +187,21 @@ public static class Program
         version: {version_next}
         image: Visual Studio 2022
         configuration: Release
+        install:
+            - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\util\install-dotnet.ps1"
+            - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
+            - ps: '& .\util\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
+            - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
         before_build:
-        - cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
+            - cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
         build:
             project: "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
             verbosity: minimal
         notifications:
-        - provider: GitHubPullRequest
-          # auth_token:
-          #   secure: "{GITHUB_APPVEYOR_AUTH_TOKEN}"
-          template: "{APPVEYOR_PR_TEMPLATE}"
+            - provider: GitHubPullRequest
+                # auth_token:
+                #   secure: "{GITHUB_APPVEYOR_AUTH_TOKEN}"
+                template: "{APPVEYOR_PR_TEMPLATE}"
         """);
     }
 }

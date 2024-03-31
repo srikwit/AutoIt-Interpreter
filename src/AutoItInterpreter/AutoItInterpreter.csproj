@@ -93,6 +93,6 @@
         </None>
     </ItemGroup>
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="dotnet &quot;$(SolutionDir)bin-util/incr.dll&quot; &quot;$(ProjectPath)&quot;" />
+        <Exec Command="dotnet run &quot;$(SolutionDir)bin-util/incr.dll&quot; &quot;$(ProjectPath)&quot;" />
     </Target>
 </Project>
