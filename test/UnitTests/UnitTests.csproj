@@ -14,8 +14,8 @@
         <PackageReference Include="Unknown6656.TestRunner" Version="1.0.5" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\AutoItInterpreter\AutoItInterpreter.csproj" />
-        <ProjectReference Include="..\..\AutoItParser\AutoItParser.fsproj" />
-        <ProjectReference Include="..\..\util\AutoIt3.Common\AutoIt3.Common.csproj" />
+        <ProjectReference Include="../../src/AutoItInterpreter/AutoItInterpreter.csproj" />
+        <ProjectReference Include="../../src/AutoItParser/AutoItParser.fsproj" />
+        <ProjectReference Include="../../src/util/AutoIt3.Common/AutoIt3.Common.csproj" />
     </ItemGroup>
 </Project>
