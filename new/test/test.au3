@@ -1,3 +1,21 @@
+#include <MsgBoxConstants.au3>
+
+If Not @Compiled Then
+        MsgBox($MB_SYSTEMMODAL, "", "This script must be compiled in order to run the example.")
+        Exit
+EndIf
+
+Local $sOutput
+While True
+        $sOutput &= ConsoleRead()
+        If @error Then ExitLoop
+        Sleep(25)
+WEnd
+MsgBox($MB_SYSTEMMODAL, "", "Received: " & @CRLF & @CRLF & $sOutput)
+
+Exit
+
+
 
 
 $res = DllCall("L:\Projects.VisualStudio\AutoItInterpreter\new\test\cpp-interop-test\bin\cpp-interop-test.exe", "int:cdecl", "add", "int", 20, "int", 400)
