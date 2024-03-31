@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "CSAutoItInterpreter": {
-      "commandName": "Project",
-      "commandLineArgs": "-v -g -c -u -r -d -i=c:/users/unknown6656/documents/autoit/test1"
-    }
-  }
-}
