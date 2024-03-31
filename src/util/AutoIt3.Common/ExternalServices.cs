@@ -152,7 +152,7 @@ public abstract class ExternalServiceProvider<@this>
 
 public interface IDebugPrintingService
 {
-    void Print(string channel, string message);
+    public void Print(string channel, string? message);
 }
 
 public abstract class ExternalServiceConnector<@this>
@@ -207,7 +207,7 @@ public abstract class ExternalServiceConnector<@this>
                 using StreamReader _debug_reader = new(_pipe_debug);
 
                 while (ServerProcess?.HasExited is false)
-                    Printer.Print(ChannelName + "-Provider", _debug_reader.ReadLine().Trim());
+                    Printer.Print(ChannelName + "-Provider", _debug_reader.ReadLine()?.Trim());
 
                 _debug_reader.Close();
             });

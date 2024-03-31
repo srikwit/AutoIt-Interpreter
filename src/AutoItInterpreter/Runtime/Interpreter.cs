@@ -318,7 +318,7 @@ public sealed class Interpreter
     /// <param name="value">Value to be printed.</param>
     public void Print(CallFrame current_frame, object? value) => MainProgram.PrintScriptMessage(current_frame.CurrentThread.CurrentLocation?.FullFileName, value?.ToString() ?? "");
 
-    void IDebugPrintingService.Print(string channel, string message) => MainProgram.PrintChannelMessage(channel, message);
+    void IDebugPrintingService.Print(string channel, string? message) => MainProgram.PrintChannelMessage(channel, message);
 
     /// <summary>
     /// Runs the global function of the script file, with which the interpreter has been initialized

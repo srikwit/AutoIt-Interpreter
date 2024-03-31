@@ -15,6 +15,7 @@ namespace Unknown6656.AutoIt3.Extensibility.Plugins.Au3Framework;
 
 using static AST;
 
+
 public sealed class FrameworkMacros
     : AbstractKnownMacroProvider
 {

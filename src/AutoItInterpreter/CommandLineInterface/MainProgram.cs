@@ -511,10 +511,12 @@ public static class MainProgram
         _finished = true;
     }
 
-    private static void SubmitPrint(bool requires_verbose, string prefix, string msg, bool from_script)
+    private static void SubmitPrint(bool requires_verbose, string prefix, string? msg, bool from_script)
     {
         if (!CommandLineOptions.Verbose && requires_verbose)
             return;
+        else if (msg is null or "")
+            return; // TODO : handle this in a better way??
 
         DateTime now = DateTime.Now;
 
@@ -549,7 +551,7 @@ public static class MainProgram
     /// <param name="args">The arguments used to format the message to be printed.</param>
     public static void PrintfDebugMessage(string key, params object?[] args) => PrintDebugMessage(LanguageLoader.CurrentLanguage?[key, args] ?? key);
 
-    internal static void PrintChannelMessage(string channel, string message) => SubmitPrint(true, channel, message, false);
+    internal static void PrintChannelMessage(string channel, string? message) => SubmitPrint(true, channel, message, false);
 
     /// <summary>
     /// Prints the given message asynchronously to STDOUT.
