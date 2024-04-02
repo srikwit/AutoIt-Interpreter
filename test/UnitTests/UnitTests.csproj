@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <!--
         <UseUnknown6656TestFramework>true</UseUnknown6656TestFramework>
@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <EnablePreviewFeatures>true</EnablePreviewFeatures>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <IsPackable>false</IsPackable>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <LangVersion>preview</LangVersion>
@@ -19,7 +19,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
         <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
-        <PackageReference Include="Unknown6656.TestRunner" Version="1.0.5" />
+        <PackageReference Include="Unknown6656.TestRunner" Version="1.0.6" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="$(SolutionDir)src/AutoItInterpreter/AutoItInterpreter.csproj" />
