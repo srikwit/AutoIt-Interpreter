@@ -9,8 +9,12 @@
 <img alt="Banner image" src="artwork/banner.png" width="700"/><br/>
 <img alt="Banner image" src="artwork/banner-features.png" width="700"/>
 
-[<img height="40px" src="https://1.bp.blogspot.com/-xGKUeWbY4QM/XUT0SkEHA2I/AAAAAAAAMDw/ZqiiVJahC34FYVc-02AhH0M0cqkNuT3EwCEwYBhgL/s1600/Free%2BDownload%2BButtons%2BPNG%2B%25288%2529.png"/>](https://github.com/Unknown6656/AutoIt-Interpreter/releases)
+<hr/>
 
+> [!WARNING]
+> This project is still in development and not yet ready for production use.
+> The current version is a pre-release version and may contain bugs or incomplete features.
+> Please report any issues you encounter [here](https://github.com/Unknown6656/AutoIt-Interpreter/issues).
 
 # Platform-Independent AutoIt3 Interpreter
 
