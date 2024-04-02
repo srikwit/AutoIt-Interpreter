@@ -1,16 +1,16 @@
 ################################################################
-# Auto-generated 2024-04-02 22:37:03.633                       #
+# Auto-generated 2024-04-02 22:54:17.120                       #
 # ANY CHANGES TO THIS DOCUMENT WILL BE LOST UPON RE-GENERATION #
 ################################################################
 #
-# git commit: 8a14e443ea780aae0998a5504aed733eedb6fed1
-version: 0.11.2238.8637
+# git commit: 4592ebd76d900b230aa227fa0ec2233d46cf86f2
+version: 0.11.2239.8637
 image: Visual Studio 2022
 configuration: Release
 install:
     - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\lib\install-dotnet.ps1"
     - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
-    - ps: '& .\lib\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
+    - ps: '& .\lib\install-dotnet.ps1 -Channel Preview -Version "9.0.100-preview.2.24157.14" -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
     - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 before_build:
     #- cmd: nuget restore "AutoItInterpreter.sln"

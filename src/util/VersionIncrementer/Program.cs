@@ -8,6 +8,10 @@ namespace VersionIncrementer;
 
 public static class Program
 {
+    // so..... basically, AppVeyor does not yet support the latest version of C#, so we have to manually download the .NET SKD and install it.
+    // this field contains the version of the .NET SDK that we want to install. I guess this can be removed as soon as AppVeyor updates its C# version.
+    public const string DOTNET_VERSION = "9.0.100-preview.2.24157.14";
+
     public const string GITHUB_APPVEYOR_AUTH_TOKEN = ""; // <-- insert your GitHub AppVeyor auth token here
     public const string REPOSITORY_AUTHOR = "Unknown6656";
     public const string REPOSITORY_NAME = "AutoIt-Interpreter";
@@ -190,7 +194,7 @@ public static class Program
         install:
             - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\lib\install-dotnet.ps1"
             - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
-            - ps: '& .\lib\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
+            - ps: '& .\lib\install-dotnet.ps1 -Channel Preview -Version "{DOTNET_VERSION}" -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
             - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
         before_build:
             #- cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
