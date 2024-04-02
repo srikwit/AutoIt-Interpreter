@@ -188,9 +188,9 @@ public static class Program
         image: Visual Studio 2022
         configuration: Release
         install:
-            - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\util\install-dotnet.ps1"
+            - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\lib\install-dotnet.ps1"
             - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
-            - ps: '& .\util\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
+            - ps: '& .\lib\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
             - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
         before_build:
             #- cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
