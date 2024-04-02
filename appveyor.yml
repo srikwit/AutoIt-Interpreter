@@ -1,19 +1,28 @@
 ################################################################
-# Auto-generated 2024-03-31 11:05:26.080                       #
+# Auto-generated 2024-04-02 22:27:31.221                       #
 # ANY CHANGES TO THIS DOCUMENT WILL BE LOST UPON RE-GENERATION #
 ################################################################
 #
-# git commit: 1b5fe1f6af2d0c353406480247880c8fb89cf6e6
-version: 0.11.2232.8635
+# git commit: 93e05f5d386a5d13dbf3e4df3387cc816c0c7156
+version: 0.11.2235.8637
 image: Visual Studio 2022
 configuration: Release
+install:
+    - ps: Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile ".\util\install-dotnet.ps1"
+    - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetcli"
+    - ps: '& .\util\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
+    - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 before_build:
-- cmd: nuget restore "AutoItInterpreter.sln"
+    #- cmd: nuget restore "AutoItInterpreter.sln"
+    - cmd: dotnet --info
+    - cmd: dotnet clean
+    - cmd: dotnet restore
+    - cmd: dotnet build --configuration Release
 build:
     project: "AutoItInterpreter.sln"
     verbosity: minimal
 notifications:
-- provider: GitHubPullRequest
-  # auth_token:
-  #   secure: ""
-  template: "{{#passed}}:white_check_mark:{{/passed}}{{#failed}}:x:{{/failed}} [Build {{&projectName}} {{buildVersion}} {{status}}]({{buildUrl}}) (commit {{commitUrl}} by @{{&commitAuthorUsername}})"
+    - provider: GitHubPullRequest
+        # auth_token:
+        #   secure: ""
+        template: "{{#passed}}:white_check_mark:{{/passed}}{{#failed}}:x:{{/failed}} [Build {{&projectName}} {{buildVersion}} {{status}}]({{buildUrl}}) (commit {{commitUrl}} by @{{&commitAuthorUsername}})"
