@@ -193,7 +193,11 @@ public static class Program
             - ps: '& .\util\install-dotnet.ps1 -Channel preview -version Latest -InstallDir "$env:DOTNET_INSTALL_DIR" -NoPath'
             - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
         before_build:
-            - cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
+            #- cmd: nuget restore "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
+            - cmd: dotnet --info
+            - cmd: dotnet clean
+            - cmd: dotnet restore
+            #- cmd: dotnet build --configuration Release
         build:
             project: "{Path.GetRelativePath(dir_reporoot.FullName, path_sln.FullName).Replace('\\', '/')}"
             verbosity: minimal

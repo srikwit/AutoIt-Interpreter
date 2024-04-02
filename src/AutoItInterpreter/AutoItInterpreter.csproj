@@ -68,7 +68,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
-        <PackageReference Include="FSharp.Core" Version="8.0.200" />
+        <!--<PackageReference Include="FSharp.Core" Version="8.0.300" />-->
         <PackageReference Include="Lokad.ILPack" Version="0.2.0" />
         <PackageReference Include="Octokit" Version="10.0.0" />
         <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
@@ -93,6 +93,6 @@
         </None>
     </ItemGroup>
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="dotnet run &quot;$(SolutionDir)bin-util/incr.dll&quot; &quot;$(ProjectPath)&quot;" />
+        <Exec Command="dotnet &quot;$(SolutionDir)bin-util/incr.dll&quot; &quot;$(ProjectPath)&quot;" />
     </Target>
 </Project>
