@@ -1,10 +1,10 @@
 ################################################################
-# Auto-generated 2024-04-02 22:27:31.221                       #
+# Auto-generated 2024-04-02 22:32:35.675                       #
 # ANY CHANGES TO THIS DOCUMENT WILL BE LOST UPON RE-GENERATION #
 ################################################################
 #
-# git commit: 93e05f5d386a5d13dbf3e4df3387cc816c0c7156
-version: 0.11.2235.8637
+# git commit: 5171900870b353a89f6a06b2ccac29362c7d1d19
+version: 0.11.2237.8637
 image: Visual Studio 2022
 configuration: Release
 install:
@@ -17,12 +17,12 @@ before_build:
     - cmd: dotnet --info
     - cmd: dotnet clean
     - cmd: dotnet restore
-    - cmd: dotnet build --configuration Release
+    #- cmd: dotnet build --configuration Release
 build:
     project: "AutoItInterpreter.sln"
     verbosity: minimal
 notifications:
     - provider: GitHubPullRequest
-        # auth_token:
-        #   secure: ""
-        template: "{{#passed}}:white_check_mark:{{/passed}}{{#failed}}:x:{{/failed}} [Build {{&projectName}} {{buildVersion}} {{status}}]({{buildUrl}}) (commit {{commitUrl}} by @{{&commitAuthorUsername}})"
+      #auth_token:
+      #   secure: ""
+      template: "{{#passed}}:white_check_mark:{{/passed}}{{#failed}}:x:{{/failed}} [Build {{&projectName}} {{buildVersion}} {{status}}]({{buildUrl}}) (commit {{commitUrl}} by @{{&commitAuthorUsername}})"

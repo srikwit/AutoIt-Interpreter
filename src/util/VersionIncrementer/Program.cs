@@ -203,9 +203,9 @@ public static class Program
             verbosity: minimal
         notifications:
             - provider: GitHubPullRequest
-                # auth_token:
-                #   secure: "{GITHUB_APPVEYOR_AUTH_TOKEN}"
-                template: "{APPVEYOR_PR_TEMPLATE}"
+              #auth_token:
+              #   secure: "{GITHUB_APPVEYOR_AUTH_TOKEN}"
+              template: "{APPVEYOR_PR_TEMPLATE}"
         """);
     }
 }
