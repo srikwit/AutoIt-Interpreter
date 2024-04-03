@@ -186,22 +186,7 @@ public static class MainProgram
 
         sw.Start();
 
-        Console.CancelKeyPress += (_, e) =>
-        {
-            Interpreter[] instances = Interpreter.ActiveInstances;
-            List<FunctionReturnValue> return_values = [];
-
-            e.Cancel = instances.Length > 0;
-
-            foreach (Interpreter interpreter in instances)
-            {
-                interpreter.ExitMethod = InterpreterExitMethod.ByClick;
-                return_values.Add(interpreter.Stop(-1));
-            }
-
-            // TODO : exit?
-            // TODO : print fatal error
-        };
+        Console.CancelKeyPress += OnCancelKeyPress;
 
         ConsoleState state = ConsoleExtensions.SaveConsoleState();
 
@@ -385,6 +370,31 @@ public static class MainProgram
         Console.Write("\e[0m");
 
         return code;
+    }
+
+    private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
+    {
+        if (InteractiveShell is { } shell)
+        {
+            e.Cancel = true;
+            shell.OnCancelKeyPressed();
+        }
+        else
+        {
+            Interpreter[] instances = Interpreter.ActiveInstances;
+            List<FunctionReturnValue> return_values = [];
+
+            e.Cancel = instances.Length > 0;
+
+            foreach (Interpreter interpreter in instances)
+            {
+                interpreter.ExitMethod = InterpreterExitMethod.ByClick;
+                return_values.Add(interpreter.Stop(-1));
+            }
+
+            // TODO : exit?
+            // TODO : print fatal error
+        }
     }
 
     private static void HandleParserError(ParserResult<CommandLineOptions> result, IEnumerable<Error> err, ref int code, ref bool help_requested)
@@ -1147,6 +1157,11 @@ public enum ExecutionMode
     view,
     interactive,
     tidy,
+
+    n = normal,
+    v = view,
+    i = interactive,
+    t = tidy,
 }
 
 public enum UpdaterMode

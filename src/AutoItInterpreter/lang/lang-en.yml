@@ -21,6 +21,7 @@ strings:
         deprecated: "[deprecated]"
         unsupported_platform: "[unsupported on {0}]"
         argument_count: "min: {0}, max: {1}"
+        ctrl_c_detected: "{0} detected. Type \"{1}\" to exit the interactive shell."
         keyboard_help:
             header: "Commands and keyboard shortcuts"
             repeat_previous: "Repeat previous line"

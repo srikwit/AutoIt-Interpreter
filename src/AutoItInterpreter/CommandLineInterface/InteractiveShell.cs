@@ -43,8 +43,6 @@ public sealed class InteractiveShell
     private bool _isdisposed;
 
 
-    public static LanguagePack CurrentLanguage => MainProgram.LanguageLoader.CurrentLanguage ?? throw new NotImplementedException("TODO : load default lang or something...");
-
     /// <summary>
     /// Returns an enumeration of all currently active <see cref="InteractiveShell"/> instances.
     /// </summary>
@@ -98,6 +96,8 @@ public sealed class InteractiveShell
     /// Indicates whether the current interactive shell is running.
     /// </summary>
     public bool IsRunning { get; private set; } = true;
+
+    public bool IsCurrentlyDrawing { get; private set; } = false;
 
     /// <summary>
     /// Returns the main thread of the current instance of <see cref="InteractiveShell"/>.
@@ -224,6 +224,8 @@ public sealed class InteractiveShell
 
             while (IsRunning)
             {
+                IsCurrentlyDrawing = true;
+
                 if (NativeInterop.OperatingSystem.HasFlag(OS.Windows))
                     Console.CursorVisible = false;
 
@@ -273,6 +275,8 @@ public sealed class InteractiveShell
 
                 if (NativeInterop.OperatingSystem.HasFlag(OS.Windows))
                     Console.CursorVisible = true;
+
+                IsCurrentlyDrawing = false;
 
                 HandleKeyPress();
             }
@@ -327,6 +331,9 @@ public sealed class InteractiveShell
 
         switch (k.Key)
         {
+            // TODO : CTRL+C
+            // TODO : CTRL+Z
+
             case ConsoleKey.RightArrow when k.Modifiers.HasFlag(ConsoleModifiers.Control):
                 if (cursor_pos < CurrentInput.Length)
                 {
@@ -493,7 +500,7 @@ public sealed class InteractiveShell
         }
     }
 
-    private static string[] CreateHelpText()
+    private string[] CreateHelpText()
     {
         const int width = 18;
 
@@ -551,7 +558,7 @@ public sealed class InteractiveShell
         StringBuilder help_text = new();
         bool newline = false;
 
-        help_text.Append(CurrentLanguage["interactive.keyboard_help.header"])
+        help_text.Append(Interpreter.CurrentUILanguage["interactive.keyboard_help.header"])
                  .AppendLine(":\n");
 
         foreach ((Union<string[], string> keys, string helptext) in entries)
@@ -559,7 +566,7 @@ public sealed class InteractiveShell
             help_text.Append(' ')
                      .Append(keys.Match(create_key_string, create_command_string))
                      .Append("\e[0m ")
-                     .Append(CurrentLanguage["interactive.keyboard_help." + helptext].PadRight(45));
+                     .Append(Interpreter.CurrentUILanguage["interactive.keyboard_help." + helptext].PadRight(45));
 
             if (newline)
                 help_text.AppendLine();
@@ -982,6 +989,32 @@ public sealed class InteractiveShell
             }
         }
     }
+
+    internal void OnCancelKeyPressed() => Task.Factory.StartNew(async delegate
+    {
+        while (IsCurrentlyDrawing)
+            await Task.Delay(0);
+
+        int ctop = Console.CursorTop;
+        int cleft = Console.CursorLeft;
+
+        string vt100_prefix = "\e[1;91m";
+        string token_exit = new ScriptToken(0, 0, 4, "EXIT", TokenType.Keyword).ConvertToVT100(false) + vt100_prefix;
+        string token_ctrlc = ScriptVisualizer.ConvertToVT100([
+            new(0, 0, 1, "[", TokenType.Symbol),
+            new(0, 1, 4, "CTRL", TokenType.Number),
+            new(0, 5, 1, "]", TokenType.Symbol),
+            new(0, 6, 1, "+", TokenType.Operator),
+            new(0, 7, 1, "[", TokenType.Symbol),
+            new(0, 8, 1, "C", TokenType.Number),
+            new(0, 9, 1, "]", TokenType.Symbol),
+        ], false) + vt100_prefix;
+        string text = Interpreter.CurrentUILanguage["interactive.ctrl_c_detected", token_ctrlc, token_exit];
+
+        Console.Write($"{vt100_prefix}{text}\e[0m");
+        Console.CursorTop = ctop;
+        Console.CursorLeft = cleft;
+    });
 
     /// <summary>
     /// Updates the list of auto-complete suggestions.
