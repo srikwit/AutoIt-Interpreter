@@ -38,7 +38,7 @@ body:
     id: os-type
     attributes:
       label: Operating System Type
-      multiple: false
+      multiple: true
       options:
         - Windows
         - MacOS
@@ -49,7 +49,7 @@ body:
     id: os-arch
     attributes:
       label: Operating System Architecture
-      multiple: false
+      multiple: true
       options:
         - x86
         - x64
