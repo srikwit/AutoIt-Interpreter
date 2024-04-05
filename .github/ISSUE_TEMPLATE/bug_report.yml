@@ -16,7 +16,6 @@ body:
   - type: textarea
     id: bug-summary
     attributes:
-      label: Bug description
       description: A clear and concise description of what the bug is. Include a stack trace, console output, debug dump, and/or screenshots.
       placeholder: What happened?
   - type: markdown
@@ -25,7 +24,6 @@ body:
   - type: textarea
     id: reproduce-steps
     attributes:
-      label: Steps to reporoduce
       description: A list describing on how to reproduce the behavior.
       placeholder: |
         1. Type '...'
@@ -38,7 +36,6 @@ body:
   - type: textarea
     id: expected-behavior
     attributes:
-      label: Expected behavior
       description: Instead of the behavior written above, what would you have expected the AutoIt interpreter to do?
   - type: markdown
     attributes:
@@ -100,6 +97,5 @@ body:
   - type: textarea
     id: additional-info
     attributes:
-      label: Additional Info
       description: Additional information you'd like to provide.
       placeholder: Did we miss anything?
