@@ -251,24 +251,31 @@ public class CommandLineParser(LanguagePack language)
             {
                 if (Enum.TryParse<T>(input, true, out T value))
                     set_option(ref option, value);
-                else if (int.TryParse(input, out int intvalue))
-                    set_option(ref option, (T)Enum.ToObject(typeof(T), intvalue));
                 else
-                {
-                    input ??= "";
+                    try
+                    {
+                        int intval = int.Parse(input ?? "0");
+                        Type underlying = Enum.GetUnderlyingType(typeof(T));
+                        object parsed = Convert.ChangeType(intval, underlying);
 
-                    T[] candidates = [..from val in Enum.GetValues<T>()
-                                let name = Enum.GetName(val)
-                                where name.StartsWith(input, StringComparison.OrdinalIgnoreCase)
-                                select val];
+                        set_option(ref option, (T)Enum.ToObject(typeof(T), parsed));
+                    }
+                    catch
+                    {
+                        input ??= "";
 
-                    if (candidates.Length == 1)
-                        set_option(ref option, candidates[0]);
-                    else if (candidates.Length == 0)
-                        errors.Add(new(index, Language["command_line.error.invalid_enum_value", input, normalized_option], true));
-                    else
-                        errors.Add(new(index, Language["command_line.error.ambiguous_enum_value", input, normalized_option, string.Join("', '", candidates)], true));
-                }
+                        T[] candidates = [..from val in Enum.GetValues<T>()
+                                            let name = Enum.GetName(val)
+                                            where name.StartsWith(input, StringComparison.OrdinalIgnoreCase)
+                                            select val];
+
+                        if (candidates.Length == 1)
+                            set_option(ref option, candidates[0]);
+                        else if (candidates.Length == 0)
+                            errors.Add(new(index, Language["command_line.error.invalid_enum_value", input, normalized_option], true));
+                        else
+                            errors.Add(new(index, Language["command_line.error.ambiguous_enum_value", input, normalized_option, string.Join("', '", candidates)], true));
+                    }
             }
 
 
