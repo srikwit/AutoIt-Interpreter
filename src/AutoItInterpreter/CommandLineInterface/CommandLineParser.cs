@@ -316,7 +316,7 @@ public class CommandLineParser(LanguagePack language)
                 else
                     unknown_option(option, true);
 
-                index -= string.IsNullOrEmpty(value) ? 0 : 1;
+                index += string.IsNullOrEmpty(value) ? 0 : 1;
             }
             else
                 unknown_option(option, true);
