@@ -547,7 +547,7 @@ public sealed class AU3CallFrame
 
         line = line.Trim();
 
-        if (Interpreter.CommandLineOptions.Verbose)
+        if (Interpreter.CommandLineOptions.VerboseOutput)
         {
             ScriptToken[] tokens = ScriptVisualizer.TokenizeScript(line);
 
@@ -573,7 +573,7 @@ public sealed class AU3CallFrame
 
         LastStatementValue = result ?? Variant.Null;
 
-        if (Interpreter.CommandLineOptions.IgnoreErrors && result is { } && result.IsFatal(out InterpreterError? error))
+        if (Interpreter.CommandLineOptions is CommandLineOptions.RunMode { IgnoreErrors: true } && result is { } && result.IsFatal(out InterpreterError? error))
         {
             MainProgram.PrintWarning(CurrentLocation, error.Message);
 
@@ -1025,7 +1025,7 @@ public sealed class AU3CallFrame
             [REGEX_ENDIF] = m => _if_stack.TryPop(out _) ? (FunctionReturnValue)Variant.True : WellKnownError("error.unexpected_close", m.Value, BlockStatementType.If),
             [REGEX_GOTO] = m =>
             {
-                if (Interpreter.CommandLineOptions.StrictMode)
+                if (Interpreter.CommandLineOptions.StrictAU3Mode)
                     return WellKnownError("error.experimental.goto_instructions");
 
                 return MoveTo(m.Groups["label"].Value);
@@ -1200,7 +1200,7 @@ public sealed class AU3CallFrame
                 {
                     string key = ex is ParseException or ParserConfigurationException or LexerException or LexerConstructionException ? "error.unparsable_line" : "error.unprocessable_line";
 
-                    if (Interpreter.CommandLineOptions.Verbose)
+                    if (Interpreter.CommandLineOptions.VerboseOutput)
                         return new InterpreterError(CurrentLocation, $"{Interpreter.CurrentUILanguage[key, line, ex.Message]}\n\nStack trace:\n{ex.StackTrace}");
                     else
                         return WellKnownError(key, line, ex.Message);

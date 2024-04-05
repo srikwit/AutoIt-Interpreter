@@ -93,7 +93,7 @@ public sealed class PluginLoader
         ClearLoadedPlugins();
 
         List<(Type Type, FileInfo PluginLocation)> types = [];
-        IEnumerable<FileInfo> assemblies = MainProgram.CommandLineOptions.StrictMode ? Array.Empty<FileInfo>() : PluginDirectory.EnumerateFiles("*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.Directory });
+        IEnumerable<FileInfo> assemblies = MainProgram.CommandLineOptions.StrictAU3Mode ? Array.Empty<FileInfo>() : PluginDirectory.EnumerateFiles("*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.Directory });
 
         foreach (FileInfo file in assemblies.Append(MainProgram.ASM_FILE))
             try

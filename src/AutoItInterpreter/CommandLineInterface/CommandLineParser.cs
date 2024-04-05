@@ -41,6 +41,7 @@ public abstract record CommandLineOptions
     public required string LanguageCode { get; set; }
     public required UpdaterMode UpdaterMode { get; set; }
     public virtual VerbosityLevel VerbosityLevel { get; set; } = VerbosityLevel.Normal;
+    public virtual bool StrictAU3Mode { get; set; } = true;
 
     public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.FullDebug;
 
@@ -71,8 +72,9 @@ public abstract record CommandLineOptions
         : CommandLineOptions
     {
         public required bool RedirectStdErrToStdOut { get; set; }
+        public override required bool StrictAU3Mode { get; set; }
+        public required string[] ScriptArguments { get; set; }
         public required bool DontLoadPlugins { get; set; }
-        public required bool StrictAU3Mode { get; set; }
         public required bool IgnoreErrors { get; set; }
 
         public override string ToString()
@@ -136,7 +138,6 @@ public abstract record CommandLineOptions
                 : NonInteractiveMode
             {
                 public required string FilePath { get; set; }
-                public required string[] ScriptArguments { get; set; }
 
                 public override string ToString()
                 {
@@ -181,10 +182,6 @@ SUPPORTED AUTOIT3 COMMAND LINE OPTIONS:
     -AutoIt3ExecuteScript
     -AutoIt3ExecuteLine
  */
-
-// TODO: @AutoItExe
-// TODO: $CmdLine
-// TODO: $CmdLineRaw
 
 public class CommandLineParser(LanguagePack language)
 {
@@ -390,6 +387,7 @@ public class CommandLineParser(LanguagePack language)
                     IgnoreErrors = ignore_errors,
                     RedirectStdErrToStdOut = redirect_stderr,
                     StrictAU3Mode = strict_au3,
+                    ScriptArguments = [.. raw.script_options],
                 };
             else if (raw.script_path is null)
                 errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.error.missing_au3_code_line" : "command_line.error.missing_file_path"], true));
@@ -412,6 +410,7 @@ public class CommandLineParser(LanguagePack language)
                         DisableCOMConnector = no_com,
                         DisableGUIConnector = no_gui,
                         Code = raw.script_path,
+                        ScriptArguments = [.. raw.script_options],
                     };
                 else
                     return new CommandLineOptions.RunMode.NonInteractiveMode.RunScript

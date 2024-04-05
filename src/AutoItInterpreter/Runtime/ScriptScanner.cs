@@ -102,7 +102,7 @@ public sealed class ScriptScanner
     {
         (FileInfo physical, string content)? file = Interpreter.Telemetry.Measure<(FileInfo, string)?>(TelemetryCategory.ResolveScript, delegate
         {
-            if (MainProgram.CommandLineOptions.StrictMode)
+            if (Interpreter.CommandLineOptions.StrictAU3Mode)
                 try
                 {
                     if (ResolveUNC(path) is { } res)
@@ -235,7 +235,7 @@ public sealed class ScriptScanner
                         });
                     else if (line.Match(REGEX_FUNC_ASSG, out m))
                     {
-                        if (MainProgram.CommandLineOptions.StrictMode)
+                        if (Interpreter.CommandLineOptions.StrictAU3Mode)
                             return InterpreterError.WellKnown(loc, "error.experimental.function_assignment");
 
                         string name = $"__internal{Interpreter.Random.NextInt() ^ loc.GetHashCode():x8}";
@@ -248,7 +248,7 @@ public sealed class ScriptScanner
                     }
                     else if (line.Match(REGEX_1L_FUNC, out m))
                     {
-                        if (MainProgram.CommandLineOptions.StrictMode)
+                        if (Interpreter.CommandLineOptions.StrictAU3Mode)
                             return InterpreterError.WellKnown(loc, "error.experimental.one_liner");
 
                         lines.InsertRange(i + 1, new[]
@@ -302,7 +302,7 @@ public sealed class ScriptScanner
                         curr_func.IsCached = mods.Contains("cached", StringComparison.OrdinalIgnoreCase);
                         _cached_functions.TryAdd(name, curr_func);
 
-                        if (MainProgram.CommandLineOptions.StrictMode && curr_func.IsCached)
+                        if (Interpreter.CommandLineOptions.StrictAU3Mode && curr_func.IsCached)
                             return InterpreterError.WellKnown(loc, "error.experimental.cached_functions");
 
                         MainProgram.PrintDebugMessage($"Scanned {(curr_func.IsVolatile ? "volatile " : "")}{(curr_func.IsCached ? "cached " : "")}func {name}({string.Join(", ", @params)})");
@@ -316,7 +316,7 @@ public sealed class ScriptScanner
                     }
                     else if (line.Match(REGEX_LABEL, out m))
                     {
-                        if (MainProgram.CommandLineOptions.StrictMode)
+                        if (Interpreter.CommandLineOptions.StrictAU3Mode)
                             return InterpreterError.WellKnown(loc, "error.experimental.goto_instructions");
 
                         string name = m.Groups["name"].Value;

@@ -153,14 +153,17 @@ public sealed class Interpreter
         MacroResolver = new MacroResolver(this);
         FunctionCache = new FunctionCache(this);
         GlobalObjectStorage = new GlobalObjectStorage(this);
+
+        string[] args = (opt as CommandLineOptions.RunMode)?.ScriptArguments ?? [];
+
         VariableResolver = VariableScope.CreateGlobalScope(this);
         VariableResolver.CreateVariable(SourceLocation.Unknown, VARIABLE.Discard.Name, false);
-        VariableResolver.CreateConstant("$CmdLineRaw", Variant.FromString(opt.ScriptArguments.StringJoin(" ")));
-        VariableResolver.CreateConstant("$CmdLine", Variant.FromArray(this, opt.ScriptArguments.Select(Variant.FromString).Prepend(Variant.FromNumber(opt.ScriptArguments.Length))));
+        VariableResolver.CreateConstant("$CmdLineRaw", Variant.FromString(args.StringJoin(" ")));
+        VariableResolver.CreateConstant("$CmdLine", Variant.FromArray(this, args.Select(Variant.FromString).Prepend(Variant.FromNumber(args.Length))));
 
         PluginLoader = new PluginLoader(this, MainProgram.PLUGIN_DIR);
 
-        if (!opt.DontLoadPlugins)
+        if (opt is not CommandLineOptions.RunMode { DontLoadPlugins: true })
             PluginLoader.LoadPlugins();
 
         if (PluginLoader.LoadedPluginFiles.Count is int i and > 0)
@@ -325,7 +328,13 @@ public sealed class Interpreter
     /// (This essentially executes the script stored in <see cref="CommandLineOptions.FilePath"/> of the interpreter's <see cref="CommandLineOptions"/>-property),
     /// </summary>
     /// <returns>The interpreter result of the script invocation.</returns>
-    public FunctionReturnValue Run(InterpreterRunContext context) => CommandLineOptions.FilePath is string s ? Run(s, context) : InterpreterError.WellKnown(null, "error.unresolved_script", "<null>");
+    public FunctionReturnValue Run()
+    {
+        if (CommandLineOptions is CommandLineOptions.RunMode.NonInteractiveMode.RunScript { FilePath: string path })
+            return Run(path);
+        else
+            return InterpreterError.WellKnown(null, "error.unresolved_script", "<null>");
+    }
 
     /// <summary>
     /// Creates a new (anonymous) interpreter, which invokes the given function with the given arguments.
@@ -373,7 +382,7 @@ public sealed class Interpreter
     /// </summary>
     /// <param name="path">The path of the script to be executed.</param>
     /// <returns>The interpreter result of the script invocation.</returns>
-    public FunctionReturnValue Run(string path, InterpreterRunContext context) => ScriptScanner.ScanScriptFile(SourceLocation.Unknown, path, false).Match(FunctionReturnValue.Fatal, s => Run(s, context));
+    public FunctionReturnValue Run(string path) => ScriptScanner.ScanScriptFile(SourceLocation.Unknown, path, false).Match(FunctionReturnValue.Fatal, s => Run(s, InterpreterRunContext.Regular));
 }
 
 public enum InterpreterRunContext
