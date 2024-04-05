@@ -1,5 +1,4 @@
 name: Bug report
-about: Report an issue, error, bug, or incorrect behavior.
 description: Report an issue, error, bug, or incorrect behavior.
 title: "[BUG] "
 labels: ["bug"]
@@ -13,7 +12,7 @@ body:
         Thanks for taking the time to fill out this bug report!
   - type: markdown
     attributes:
-      value: ## Bug Description
+      value: "## Bug Description"
   - type: textarea
     id: bug-summary
     attributes:
@@ -24,7 +23,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: ## Steps to reproduce the Bug
+      value: "## Steps to reproduce the Bug"
   - type: textarea
     id: reproduce-steps
     attributes:
@@ -39,7 +38,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: ## Expected Behavior
+      value: "## Expected Behavior"
   - type: textarea
     id: expected-behavior
     attributes:
@@ -49,7 +48,7 @@ body:
       required: false
   - type: markdown
     attributes:
-      value: ## Environment and Version Information
+      value: "## Environment and Version Information"
   - type: dropdown
     id: os-type
     attributes:
@@ -109,7 +108,7 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: ## Additional Information
+      value: "## Additional Information"
   - type: textarea
     id: additional-info
     attributes:
