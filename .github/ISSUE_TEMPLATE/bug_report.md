@@ -25,12 +25,25 @@ If applicable, insert the stack trace in a code block here.
 ### Screenshots
 If applicable, add screenshots to help explain your problem.
 
-### Used system
- - OS and Architecture: _[e.g. Windows 10 64Bit, Build № 42] (this can be obtained using the command `ver` on windows or `uname -a` on linux)_
- - Interpreter Version: _The version can be found using the command `autoit --version`_
- - Commit hash: _The git commit hash can be found using the command `autoit --version`_
+### AutoIt Interpreter version
+Paste the output of the command `./autoit3 --version` here, e.g.:
+```
++-----------------+
+|        **+o.    |
+|       .=*.+     |   AUTOIT3 INTERPRETER
+|       . ++ o    |     Written by Unknown6656, 2018 - 2024
+|        ...o     |
+|       +S E      |   https://github.com/Unknown6656/AutoIt-Interpreter/
+|    . +.o. +.    |
+|     B o.*.o+    |   Version 0.12.2274.8640, a555aba17d74e5df3628eb44edcbe54d9397f583
+|    + * =.Oo..   |   B5CF99E91A99B93C2EA925B24ED78D670267ABF5453103429E7064F30C94DEB6
+|     +o=o*.o.    |
++-----------------+
+```
 
-_insert additional configuration information if needed_
+### Environment
+ - OS and Architecture: _[e.g. Windows 10 64Bit, Build № 42] (this can be obtained using the command `ver` on windows or `uname -a` on linux)_
+- _insert additional configuration information if needed_
 
 <!-- optional -->
 ### Additional context
