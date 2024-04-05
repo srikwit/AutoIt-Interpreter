@@ -1,4 +1,3 @@
----
 name: Bug report
 about: Report an issue, error, bug, or incorrect behavior.
 description: Report an issue, error, bug, or incorrect behavior.
@@ -87,30 +86,6 @@ body:
       placeholder: Did we miss anything?
     validation:
       required: false
----
-
-### Bug description
-
-
-### Steps to reproduce
-Steps to reproduce the behavior:
-1. Type '...'
-2. Execute '....'
-3. Scroll down to '....'
-4. See error
-
-### Expected behaviour
-A clear and concise description of what you expected to happen.
-
-### Stack Trace or Debug Log
-If applicable, insert the stack trace in a code block here.
-
-### Screenshots
-If applicable, add screenshots to help explain your problem.
-
-### AutoIt Interpreter version
-Paste the output of the command `./autoit3 --version` here, e.g.:
-
 
 ### Environment
  - OS and Architecture: _[e.g. Windows 10 64Bit, Build № 42] (this can be obtained using the command `ver` on windows or `uname -a` on linux)_
