@@ -22,7 +22,7 @@ public enum VerbosityLevel
 /// </summary>
 public enum ExecutionMode
 {
-    Normal, // script
+    Normal,
     View,
     Line,
     Interactive,
@@ -251,6 +251,8 @@ public class CommandLineParser(LanguagePack language)
             {
                 if (Enum.TryParse<T>(input, true, out T value))
                     set_option(ref option, value);
+                else if (int.TryParse(input, out int intvalue))
+                    set_option(ref option, (T)Enum.ToObject(typeof(T), intvalue));
                 else
                 {
                     input ??= "";
@@ -275,7 +277,10 @@ public class CommandLineParser(LanguagePack language)
             else if (normalized_option is OPTION_CHECK_FOR_UPDATE)
                 set_enum_option(ref raw.updatemode, value);
             else if (normalized_option is OPTION_VERBOSITY)
+            {
+
                 set_enum_option(ref raw.verbosity, value);
+            }
             else if (normalized_option is OPTION_LANG)
                 set_option(ref raw.langcode, value ?? raw.langcode);
             else if (normalized_option is OPTION_NO_PLUGINS or OPTION_NO_GUI or OPTION_NO_COM or OPTION_STRICT or OPTION_IGNORE_ERRORS or OPTION_HELP or OPTION_VERSION
@@ -389,7 +394,7 @@ public class CommandLineParser(LanguagePack language)
                     StrictAU3Mode = strict_au3,
                     ScriptArguments = [.. raw.script_options],
                 };
-            else if (raw.script_path is null)
+            else if (string.IsNullOrWhiteSpace(raw.script_path))
                 errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.error.missing_au3_code_line" : "command_line.error.missing_file_path"], true));
             else
             {
