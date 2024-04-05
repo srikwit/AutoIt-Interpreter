@@ -8,7 +8,12 @@ assignees:
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this bug report!
+      value: |
+        # AutoIt3 Interpreter Bug Report
+        Thanks for taking the time to fill out this bug report!
+  - type: markdown
+    attributes:
+      value: ## Bug Description
   - type: textarea
     id: bug-summary
     attributes:
@@ -17,6 +22,9 @@ body:
       placeholder: What happened?
     validation:
       required: true
+  - type: markdown
+    attributes:
+      value: ## Steps to reproduce the Bug
   - type: textarea
     id: reproduce-steps
     attributes:
@@ -29,6 +37,9 @@ body:
         4. See error
     validation:
       required: true
+  - type: markdown
+    attributes:
+      value: ## Expected Behavior
   - type: textarea
     id: expected-behavior
     attributes:
@@ -36,6 +47,9 @@ body:
       description: Instead of the behavior written above, what would you have expected the AutoIt interpreter to do?
     validation:
       required: false
+  - type: markdown
+    attributes:
+      value: ## Environment and Version Information
   - type: dropdown
     id: os-type
     attributes:
@@ -78,6 +92,9 @@ body:
       render: text
     validation:
       required: true
+  - type: markdown
+    attributes:
+      value: ## Additional Information
   - type: textarea
     id: additional-info
     attributes:
