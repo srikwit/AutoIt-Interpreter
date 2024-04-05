@@ -1,8 +1,9 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-assignees: Unknown6656
+about: Report an issue, error, bug, or incorrect behavior.
+title: "[BUG]"
 labels: bug
+assignees: Unknown6656
 
 ---
 
