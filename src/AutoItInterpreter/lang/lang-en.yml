@@ -51,6 +51,9 @@ strings:
             missing_au3_code_line: "No AutoIt3 code line has been provided. Please provide a valid AutoIt3 code line."
             unsupported_os: "The current operating system '{0}' does not support setting the option '{1}'."
             missing_option: "Option '{0}' requires a value to be set. Please provide a value for this option."
+
+       # "No script path has been provided. You can refer to \e[4mhttps://github.com/Unknown6656/AutoIt-Interpreter/wiki/Usage\e[24m a documentation of the interpreter's command line usage."
+
     debug:
         name: "Name"
         index: "Index"
@@ -71,7 +74,7 @@ strings:
         no_plugins_loaded: "No plugin files have been loaded."
         plugins_loaded: "{0}+1 plugin files have been loaded from the directory '{1}' ({2} loaded modules)."
         interpreter_loading: "Loading interpreter ..."
-        interpreter_loaded: "Interpreter loaded. Running script '{0}' ..."
+        interpreter_loaded: "Interpreter loaded."
         update:
             searching: "Looking for new GitHub releases..."
             no_releases: "No newer software updates have been found. You are on the newest version!"
@@ -168,7 +171,7 @@ strings:
                 assg_statements: "Assignment Statements"
                 expressions: "Expressions"
                 external_proc: "External Processing"
-            explanation: "All absolute timings are printed in the format '[[hh:]mm:]ss.ffffff' with the unit being seconds.\nTimings are sorted into \u001b[4msemantic\u001b[24m categories, not quantitative ones. This may result in overlapping or 'weird' percentage values in the 'Time (% Parent)' column.\nLines colored in red indicate so-called 'hot paths'. These are the computationally most expensive tasks relative to their semantic parent."
+            explanation: "All absolute timings are printed in the format '[[hh:]mm:]ss.ffffff' with the unit being seconds.\nTimings are sorted into \e[4msemantic\e[24m categories, not quantitative ones. This may result in overlapping or 'weird' percentage values in the 'Time (% Parent)' column.\nLines colored in red indicate so-called 'hot paths'. These are the computationally most expensive tasks relative to their semantic parent."
         au3thread:
             created: "Created thread {0}."
             disposed: "Disposed thread {0}."
@@ -228,7 +231,6 @@ strings:
         missing_if: "'Else'- or 'ElseIf'-statements can only be used after an opening 'If ... Then'-statement."
         net_execution_error: "The .NET method '{0}' could not be executed. Please verify that the number and types of parameters are correct."
         no_matching_close: "The '{0}'-statement opened in {1} does not have a corresponding closing statement."
-        no_script_path_provided: "No script path has been provided. You can refer to \u001b[4mhttps://github.com/Unknown6656/AutoIt-Interpreter/wiki/Usage\u001b[24m a documentation of the interpreter's command line usage."
         not_enough_args: "The function '{0}' expects at least {1} arguments, however, only {2} arguments were given."
         redefining_constant: "The variable '{0}' has been previously defined as constant (at {1}) and can therefore not be re-defined."
         register_func_argcount: "Functions registered with '#OnAutoItStartRegister' or '#OnAutoItExitRegister' must not have any mandatory parameter, meaning that they must be either parameterless, or only accept parameters declared with default values."
@@ -260,7 +262,7 @@ strings:
         unresolved_script: "The script or include file '{0}' could not be resolved. Verify that the path is correct and the file in question is accessible. If you have an include resolver plugin, verify whether the .dll can be correctly loaded from the plugin-folder."
         unsupported_operator: "The operator '{0}' is not supported."
         unsupported_platform: "The function '{0}' is not supported on the current operating system '{1}'. Supported system(s) is/are: '{2}'."
-        vlc_required: "This function requires a working installation of 'vlc' or 'vlc.exe' to be accessible from the 'PATH' environment variable. Please visit \u001b[4mhttps://www.videolan.org/vlc/\u001b[24m to download and install the free VLC player."
+        vlc_required: "This function requires a working installation of 'vlc' or 'vlc.exe' to be accessible from the 'PATH' environment variable. Please visit \e[4mhttps://www.videolan.org/vlc/\e[24m to download and install the free VLC player."
         experimental:
             cached_functions: "Cached functions can only be used if the interpreter is started without the '--strict' option."
             function_assignment: "Function assignments can only be used if the interpreter is started without the '--strict' option."
