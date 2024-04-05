@@ -1,5 +1,6 @@
 ---
 name: Bug report
+about: Report an issue, error, bug, or incorrect behavior.
 description: Report an issue, error, bug, or incorrect behavior.
 title: "[BUG] "
 labels: ["bug"]
