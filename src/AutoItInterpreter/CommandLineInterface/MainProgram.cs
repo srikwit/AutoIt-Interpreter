@@ -404,31 +404,41 @@ public static class MainProgram
                 InteractiveShell = null;
             }
         else if (CommandLineOptions is CommandLineOptions.RunMode.NonInteractiveMode non_interactive)
+        {
+            Union<InterpreterError, ScannedScript> resolved;
+
             if (non_interactive is CommandLineOptions.RunMode.NonInteractiveMode.RunLine run_line)
             {
-                throw new NotImplementedException();
+                FileInfo tmp_path = new($"0:/temp~{interpreter.Random.NextInt():x8}");
 
-                // TODO
+                resolved = interpreter.ScriptScanner.ProcessScriptFile(tmp_path, run_line.Code);
             }
             else if (non_interactive is CommandLineOptions.RunMode.NonInteractiveMode.RunScript run_script)
+                resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, run_script.FilePath, true);
+            else
             {
-                Union<InterpreterError, ScannedScript> resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, run_script.FilePath, true);
-                InterpreterError? error = null;
+                // TODO : unknown execution mode
 
-                if (resolved.Is(out ScannedScript? script))
-                {
-                    FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, interpreter.Run);
-
-                    result.IsFatal(out error);
-
-                    return result.IsError(out int exitcode) ? exitcode : 0;
-                }
-                else
-                    error = resolved.As<InterpreterError>();
-
-                if (error is InterpreterError err)
-                    PrintError($"{lang["error.error_in", err.Location ?? SourceLocation.Unknown]}:\n    {err.Message}");
+                throw new NotImplementedException();
+                return -1;
             }
+
+            InterpreterError? error = null;
+
+            if (resolved.Is(out ScannedScript? script))
+            {
+                FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, interpreter.Run);
+
+                result.IsFatal(out error);
+
+                return result.IsError(out int exitcode) ? exitcode : 0;
+            }
+            else
+                error = resolved.As<InterpreterError>();
+
+            if (error is InterpreterError err)
+                PrintError($"{lang["error.error_in", err.Location ?? SourceLocation.Unknown]}:\n    {err.Message}");
+        }
 
         return -1;
     }
@@ -1112,12 +1122,11 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
         string[] version = hash.ToDrunkBishop().SplitIntoLines();
         LanguagePack? lang = LanguageLoader.CurrentLanguage;
 
-        version[0] +=  "  AUTOIT3 INTERPRETER";
-        version[1] += $"    {lang?["banner.written_by", __module__.Author, __module__.Year]}";
-        version[4] += $"  {lang?["banner.version"]} v.{__module__.InterpreterVersion}";
-        version[5] += $"  GIT: {__module__.GitHash}";
-        version[6] += $"  ASM: {hash.ToHexString()}";
-        version[8] += $"  \e[4m{__module__.RepositoryURL}/\e[24m";
+        version[2] +=  "   AUTOIT3 INTERPRETER";
+        version[3] += $"     {lang?["banner.written_by", __module__.Author, __module__.Year]}";
+        version[5] += $"   \e[4m{__module__.RepositoryURL}/\e[24m";
+        version[7] += $"   {lang?["banner.version"]} {__module__.InterpreterVersion}, {__module__.GitHash}";
+        version[8] += $"   {hash.ToHexString()}";
 
 
         _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Printing, delegate
