@@ -42,6 +42,8 @@ public abstract record CommandLineOptions
     public required UpdaterMode UpdaterMode { get; set; }
     public virtual VerbosityLevel VerbosityLevel { get; set; } = VerbosityLevel.Normal;
 
+    public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.FullDebug;
+
     public override string ToString() => $"--{CommandLineParser.OPTION_LANG} {LanguageCode} --{CommandLineParser.OPTION_CHECK_FOR_UPDATE} {UpdaterMode}";
 
 

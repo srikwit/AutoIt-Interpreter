@@ -10,9 +10,6 @@ using System.Text;
 using System.IO;
 using System;
 
-using CommandLine.Text;
-using CommandLine;
-
 using Octokit;
 
 using Unknown6656.AutoIt3.Localization;
@@ -27,84 +24,79 @@ using Unknown6656.Common;
 using Unknown6656.IO;
 
 using OS = Unknown6656.AutoIt3.Runtime.Native.OS;
-using CLParser = CommandLine.Parser;
-
-
-[assembly: AssemblyUsage(@"
-  Run the interpreter quietly (only print the script's output):
-      autoit3 ~/Documents/my_script.au3
-      autoit3 C:\User\Public\Script              (you can also omit the file extension)
-  
-  Run the interpreter in telemetry/full debugging mode:
-      autoit3 -t ~/Documents/my_script.au3
-      autoit3 -v ~/Documents/my_script.au3
-  
-  Run a script which is not on the local machine:
-      autoit3 ""\\192.168.0.1\Public Documents\My Script.au3""
-      autoit3 https://example.com/my-script.au3
-      autoit3 ftp://username:password@example.com/path/to/script.au3
-  
-  Run the interpreter in interactive mode:
-      autoit3 -m interactive
-
-  Run the interpreter in view-only mode:
-      autoit3 -m view ~/Documents/my_script.au3
-
-  Use an other display language than English for the interpreter:
-      autoit3 -l fr C:\User\Public\Script.au3
-
-  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
-
--------------------------------------------------------------------------------
-
-COMMAND LINE OPTIONS:")]
+using static Microsoft.FSharp.Core.ByRefKinds;
 
 namespace Unknown6656.AutoIt3.CLI;
 
-/// <summary>
-/// Represents a structure of command line options for the AutoIt interpreter.
-/// </summary>
-public sealed class CommandLineOptions
-{
-    [Option('m', "mode", Default = ExecutionMode.normal, HelpText = "The program's execution mode. Possible values are 'normal' (n), 'interactive' (i), 'view' (v), and 'tidy' (t). The default value is 'normal'. This will run the specified script. The value 'view' indicates that the interpreter shall only display a syntax highlighted version of the script. The value 'interactive' starts the interactive AutoIt shell. The value 'tidy' formats the speicified script file.")]
-    public ExecutionMode ProgramExecutionMode { get; set; } = ExecutionMode.normal;
-
-    [Option('N', "no-plugins", Default = false, HelpText = "Prevents the loading of interpreter plugins/extensions.")]
-    public bool DontLoadPlugins { set; get; } = false;
-
-    [Option('s', "strict", Default = false, HelpText = "Indicates that only strict Au3-features and -syntaxes should be be supported (Extensions to the AutoIt language will be interpreted as errors).")]
-    public bool StrictMode { set; get; } = false;
-
-    [Option('e', "ignore-errors", Default = false, HelpText = "Ignores syntax and evaluation errors during parsing (unsafe!). This can lead to undefined and non-deterministic behaviour.")]
-    public bool IgnoreErrors { set; get; } = false;
-
-    [Option('t', "telemetry", Default = false, HelpText = "Prints the interpreter telemetry. A verbosity level of 'n' or 'v' will automatically set this flag.  NOTE: All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might suggest. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server.")]
-    public bool PrintTelemetry { set; get; } = false;
-
-    [Option('v', "verbose", Default = false, HelpText = "Indicates that the interpreter should also print debug messages.")]
-    public bool Verbose { set; get; } = false;
-
-    [Option('u', "check-for-update", Default = UpdaterMode.release, HelpText = "Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\e[4m" + __module__.RepositoryURL + "/releases\e[24m).")]
-    public UpdaterMode UpdaterMode { set; get; } = UpdaterMode.release;
-
-    [Option('l', "lang", Default = "en", HelpText = "The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.")]
-    public string Language { set; get; } = "en";
-
-    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/...).")]
-    public string? FilePath { set; get; } = null;
-
-#pragma warning disable CA1819 // Properties should not return arrays
-    public string[] ScriptArguments { get; set; } = [];
-#pragma warning restore CA1819
 
 
-    // TODO : -C --no-com  "Disable the COM service connector (Windows only)."
-    // TODO : -G --no-gui  "Disable the GUI service connector (implied by --strict)."
+//[assembly:__AssemblyUsage(@"
+//  Run the interpreter quietly (only print the script's output):
+//      autoit3 ~/Documents/my_script.au3
+//      autoit3 C:\User\Public\Script              (you can also omit the file extension)
+
+//  Run the interpreter in telemetry/full debugging mode:
+//      autoit3 -t ~/Documents/my_script.au3
+//      autoit3 -v ~/Documents/my_script.au3
+
+//  Run a script which is not on the local machine:
+//      autoit3 ""\\192.168.0.1\Public Documents\My Script.au3""
+//      autoit3 https://example.com/my-script.au3
+//      autoit3 ftp://username:password@example.com/path/to/script.au3
+
+//  Run the interpreter in interactive mode:
+//      autoit3 -m interactive
+
+//  Run the interpreter in view-only mode:
+//      autoit3 -m view ~/Documents/my_script.au3
+
+//  Use an other display language than English for the interpreter:
+//      autoit3 -l fr C:\User\Public\Script.au3
+
+//  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
+
+//-------------------------------------------------------------------------------
+
+//COMMAND LINE OPTIONS:")]
 
 
-    /// <inheritdoc/>
-    public override string ToString() => CLParser.Default.FormatCommandLine(this);
-}
+
+//public sealed class __CommandLineOptions
+//{
+//    [Option('m', "mode", Default = ExecutionMode.normal, HelpText = "The program's execution mode. Possible values are 'normal' (n), 'interactive' (i), 'view' (v), and 'tidy' (t). The default value is 'normal'. This will run the specified script. The value 'view' indicates that the interpreter shall only display a syntax highlighted version of the script. The value 'interactive' starts the interactive AutoIt shell. The value 'tidy' formats the speicified script file.")]
+//    public ExecutionMode ProgramExecutionMode { get; set; } = ExecutionMode.normal;
+
+//    [Option('N', "no-plugins", Default = false, HelpText = "Prevents the loading of interpreter plugins/extensions.")]
+//    public bool DontLoadPlugins { set; get; } = false;
+
+//    [Option('s', "strict", Default = false, HelpText = "Indicates that only strict Au3-features and -syntaxes should be be supported (Extensions to the AutoIt language will be interpreted as errors).")]
+//    public bool StrictMode { set; get; } = false;
+
+//    [Option('e', "ignore-errors", Default = false, HelpText = "Ignores syntax and evaluation errors during parsing (unsafe!). This can lead to undefined and non-deterministic behaviour.")]
+//    public bool IgnoreErrors { set; get; } = false;
+
+//    [Option('t', "telemetry", Default = false, HelpText = "Prints the interpreter telemetry. A verbosity level of 'n' or 'v' will automatically set this flag.  NOTE: All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might suggest. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server.")]
+//    public bool PrintTelemetry { set; get; } = false;
+
+//    [Option('v', "verbose", Default = false, HelpText = "Indicates that the interpreter should also print debug messages.")]
+//    public bool Verbose { set; get; } = false;
+
+//    [Option('u', "check-for-update", Default = UpdaterMode.release, HelpText = "Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\e[4m" + __module__.RepositoryURL + "/releases\e[24m).")]
+//    public UpdaterMode UpdaterMode { set; get; } = UpdaterMode.release;
+
+//    [Option('l', "lang", Default = "en", HelpText = "The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.")]
+//    public string Language { set; get; } = "en";
+
+//    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/...).")]
+//    public string? FilePath { set; get; } = null;
+//}
+
+
+
+
+
+
+
 
 /// <summary>
 /// The module containing the AutoIt Interpreter's main entry point.
@@ -152,6 +144,7 @@ public static class MainProgram
 
     // TODO : clean up 'Start'-method
 
+
     /// <summary>
     /// The main entry point for this application.
     /// </summary>
@@ -159,8 +152,102 @@ public static class MainProgram
     /// <returns>Return/exit code.</returns>
     public static int Start(string[] argv)
     {
+        ConsoleState state = SetUpTerminal();
+        Stopwatch sw = Stopwatch.StartNew();
+
+        RawCMDLineArguments = argv;
+
+        Console.CancelKeyPress += OnCancelKeyPress;
+
+        using Task printer_task = Task.Run(PrinterTask);
+        using Task telemetry_task = Task.Run(Telemetry.StartPerformanceMonitorAsync);
+        bool print_telemetry = false;
+        int exitcode = 0;
+
+        Telemetry.Measure(TelemetryCategory.ProgramRuntime, delegate
+        {
+            try
+            {
+                LanguagePack? lang = TryLoadDefaultLanguage();
+
+                if (lang == null)
+                {
+                    exitcode = -1;
+
+                    return;
+                }
+
+                CommandLineParser parser = new(lang);
+                CommandLineOptions? cli_options = Telemetry.Measure(TelemetryCategory.ParseCommandLine, delegate
+                {
+                    CommandLineOptions? result = parser.Parse(argv, out List<CommandLineParsingError> errors);
+
+                    if (result is null)
+                        HandleParserErrors(lang, result, [.. errors.OrderBy(err => err.ArgumentIndex)], ref exitcode);
+                    else
+                        CommandLineOptions = result;
+
+                    return result;
+                });
+
+                if (cli_options == null || exitcode != 0)
+                {
+                    exitcode = -1;
+
+                    return;
+                }
+                else if (!LanguageLoader.TrySetCurrentLanguagePack(cli_options.LanguageCode))
+                {
+                    PrintError(lang["error.unknown_language_pack", cli_options.LanguageCode, LanguageLoader.LoadedLanguageCodes.StringJoin("', '")]);
+
+                    exitcode = -1;
+
+                    return;
+                }
+
+                if (cli_options is CommandLineOptions.ShowVersion)
+                    PrintVersion();
+                else if (cli_options is CommandLineOptions.ShowHelp)
+                    parser.PrintHelp();
+                else
+                    exitcode = Run();
+            }
+            catch (Exception ex)
+            when (!Debugger.IsAttached)
+            {
+                Telemetry.Measure(TelemetryCategory.Exceptions, delegate
+                {
+                    exitcode = ex.HResult;
+
+                    PrintException(ex);
+                });
+            }
+        });
+
+        while (_print_queue.Count > 0)
+            Thread.Sleep(100);
+
+        sw.Stop();
+        Telemetry.SubmitTimings(TelemetryCategory.ProgramRuntimeAndPrinting, sw.Elapsed);
+        Telemetry.StopPerformanceMonitor();
+        telemetry_task.Wait();
+
+        if (print_telemetry)
+            PrintReturnCodeAndTelemetry(exitcode, Telemetry);
+
+        _isrunning = false;
+
+        while (!_finished)
+            printer_task.Wait();
+
+        CleanUpTerminal(state);
+
+        return exitcode;
+    }
+
+    private static ConsoleState SetUpTerminal()
+    {
         ConsoleExtensions.ThrowOnInvalidConsoleMode = false;
-        NativeInterop.DoPlatformDependent(() => Console.BufferHeight = short.MaxValue - 1, OS.Windows);
 
         if (!ConsoleExtensions.SupportsVTEscapeSequences)
         {
@@ -180,196 +267,30 @@ public static class MainProgram
             Console.ReadKey(true);
         }
 
-        RawCMDLineArguments = argv;
-
-        Stopwatch sw = new();
-
-        sw.Start();
-
-        Console.CancelKeyPress += OnCancelKeyPress;
-
         ConsoleState state = ConsoleExtensions.SaveConsoleState();
 
-        using Task printer_task = Task.Run(PrinterTask);
-        using Task telemetry_task = Task.Run(Telemetry.StartPerformanceMonitorAsync);
-        bool print_telemetry = false;
-        int code = 0;
-
-        Telemetry.Measure(TelemetryCategory.ProgramRuntime, delegate
+        NativeInterop.DoPlatformDependent(delegate
         {
-            try
-            {
-                NativeInterop.DoPlatformDependent(delegate
-                {
 #pragma warning disable CA1416 // Validate platform compatibility
-                    Console.WindowWidth = Math.Max(Console.WindowWidth, 100);
-                    Console.BufferWidth = Math.Max(Console.BufferWidth, Console.WindowWidth);
+            Console.BufferHeight = short.MaxValue - 1;
+            Console.WindowWidth = Math.Max(Console.WindowWidth, 100);
+            Console.BufferWidth = Math.Max(Console.BufferWidth, Console.WindowWidth);
 #pragma warning restore CA1416
-                }, OS.Windows);
+        }, OS.Windows);
 
-                // Console.OutputEncoding = Encoding.Unicode;
-                // Console.InputEncoding = Encoding.Unicode;
-                Console.ResetColor();
-                ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
-                // Console.BackgroundColor = ConsoleColor.Black;
-                // Console.Clear();
+        // Console.OutputEncoding = Encoding.Unicode;
+        // Console.InputEncoding = Encoding.Unicode;
+        Console.ResetColor();
+        ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
 
-                string[]? script_args = null;
+        return state;
+    }
 
-                Telemetry.Measure(TelemetryCategory.ParseCommandLine, delegate
-                {
-                    if (argv.WithIndex().SkipWhile(i => i.Item != "--").FirstOrDefault() is { Index: int idx, Item: not null })
-                    {
-                        script_args = argv[(idx + 1)..];
-                        argv = argv[..idx];
-                    }
-
-                    using CLParser parser = new(p =>
-                    {
-                        p.HelpWriter = null;
-                        p.IgnoreUnknownArguments = false;
-                    });
-
-                    ParserResult<CommandLineOptions> result = parser.ParseArguments<CommandLineOptions>(argv);
-
-                    result.WithNotParsed(err =>
-                    {
-                        HandleParserError(result, err, ref code, ref print_telemetry);
-                        print_telemetry ^= true;
-                    });
-
-                    return result;
-                }).WithParsed(opt =>
-                {
-                    if (opt.ProgramExecutionMode is ExecutionMode.normal)
-                        print_telemetry = true;
-                    else
-                    {
-                        opt.Verbose = false;
-                        opt.PrintTelemetry = false;
-                        opt.DontLoadPlugins = opt.ProgramExecutionMode is ExecutionMode.view or ExecutionMode.tidy;
-                    }
-
-                    opt.ScriptArguments = script_args ?? opt.ScriptArguments;
-                    CommandLineOptions = opt;
-
-                    Telemetry.Measure(TelemetryCategory.LoadLanguage, delegate
-                    {
-                        LanguageLoader.LoadLanguagePacksFromDirectory(LANG_DIR);
-                        LanguageLoader.TrySetCurrentLanguagePack(opt.Language);
-                    });
-
-                    LanguagePack? lang = LanguageLoader.CurrentLanguage;
-
-                    if (lang is null)
-                    {
-                        code = -1;
-                        PrintError($"Unknown language pack '{opt.Language}'. Available languages: '{string.Join("', '", LanguageLoader.LoadedLanguageCodes)}'");
-
-                        return;
-                    }
-
-                    Task<bool> update_task = UpdateTask();
-
-                    PrintBanner();
-                    PrintDebugMessage(opt.ToString());
-                    PrintfDebugMessage("debug.langpack_found", LanguageLoader.LoadedLanguageCodes.Length);
-                    PrintfDebugMessage("debug.loaded_langpack", lang);
-                    PrintfDebugMessage("debug.interpreter_loading");
-
-                    using Interpreter interpreter = Telemetry.Measure(TelemetryCategory.InterpreterInitialization, () => new Interpreter(opt, Telemetry, LanguageLoader));
-
-                    if (update_task.GetAwaiter().GetResult())
-                        code = 0; // update has been performed
-                    else if (opt.ProgramExecutionMode is ExecutionMode.interactive)
-                    {
-                        using InteractiveShell shell = new(interpreter);
-
-                        if (shell.Initialize())
-                        {
-                            InteractiveShell = shell;
-
-                            shell.Run();
-                        }
-
-                        InteractiveShell = null;
-
-                        PrintfDebugMessage("error.not_yet_implemented", opt.ProgramExecutionMode);
-                    }
-                    else if (opt.FilePath is string path)
-                    {
-                        Union<InterpreterError, ScannedScript> resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, path, true);
-                        InterpreterError? error = null;
-
-                        if (resolved.Is(out ScannedScript? script))
-                        {
-                            PrintfDebugMessage("debug.interpreter_loaded", path);
-
-                            if (opt.ProgramExecutionMode is ExecutionMode.view)
-                            {
-                                ScriptToken[] tokens = ScriptVisualizer.TokenizeScript(script);
-
-                                Console.WriteLine(tokens.ConvertToVT100(true));
-                            }
-                            else if (opt.ProgramExecutionMode is ExecutionMode.tidy)
-                            {
-                                // TODO : clean up the script
-
-                                throw new NotImplementedException();
-                            }
-                            else if (opt.ProgramExecutionMode is ExecutionMode.normal)
-                            {
-                                FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, () => interpreter.Run(InterpreterRunContext.Regular));
-
-                                result.IsFatal(out error);
-
-                                if (!result.IsError(out code))
-                                    code = 0;
-                            }
-                        }
-                        else
-                            error = resolved.As<InterpreterError>();
-
-                        if (error is InterpreterError err)
-                            PrintError($"{lang["error.error_in", err.Location ?? SourceLocation.Unknown]}:\n    {err.Message}");
-                    }
-                    else
-                        PrintError(lang["error.no_script_path_provided"]);
-                });
-            }
-            catch (Exception ex)
-            when (!Debugger.IsAttached)
-            {
-                Telemetry.Measure(TelemetryCategory.Exceptions, delegate
-                {
-                    code = ex.HResult;
-
-                    PrintException(ex);
-                });
-            }
-        });
-
-        while (_print_queue.Count > 0)
-            Thread.Sleep(100);
-
-        sw.Stop();
-        Telemetry.SubmitTimings(TelemetryCategory.ProgramRuntimeAndPrinting, sw.Elapsed);
-        Telemetry.StopPerformanceMonitor();
-        telemetry_task.Wait();
-
-        if (print_telemetry)
-            PrintReturnCodeAndTelemetry(code, Telemetry);
-
-        _isrunning = false;
-
-        while (!_finished)
-            printer_task.Wait();
-
+    private static void CleanUpTerminal(ConsoleState state)
+    {
         ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
         ConsoleExtensions.RestoreConsoleState(state);
         Console.Write("\e[0m");
-
-        return code;
     }
 
     private static void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
@@ -397,56 +318,135 @@ public static class MainProgram
         }
     }
 
-    private static void HandleParserError(ParserResult<CommandLineOptions> result, IEnumerable<Error> err, ref int code, ref bool help_requested)
+    private static LanguagePack? TryLoadDefaultLanguage() => Telemetry.Measure(TelemetryCategory.LoadLanguage, delegate
     {
-        HelpText help = HelpText.AutoBuild(result, h =>
-        {
-            h.AdditionalNewLineAfterOption = false;
-            h.MaximumDisplayWidth = 119;
-            h.Heading = $"AutoIt3 Interpreter v.{__module__.InterpreterVersion} ({__module__.GitHash})";
-            h.Copyright = __module__.Copyright;
-            h.AddDashesToOption = true;
-            h.AutoHelp = true;
-            h.AutoVersion = true;
-            h.AddNewLineBetweenHelpSections = true;
-            h.AddEnumValuesToHelpText = false;
+        LanguageLoader.LoadLanguagePacksFromDirectory(LANG_DIR);
 
-            return HelpText.DefaultParsingErrorsHandler(result, h);
-        }, e => e);
-
-        if (err.FirstOrDefault() is VersionRequestedError or UnknownOptionError { StopsProcessing: false, Token: "version" })
-        {
-            Console.WriteLine(help.Heading);
-            Console.WriteLine(help.Copyright);
-            Console.WriteLine($"\e[4m{__module__.RepositoryURL}/\e[24m");
-
-            help_requested = true;
-        }
+        if (LanguageLoader.LoadedLanguageCodes.Length == 0)
+            PrintError($"Unable to load any language packs. Verify whether the directory '{LANG_DIR}' is accessible and contains at least one valid language pack.");
+        else if (LanguageLoader.LoadedLanguageCodes.Contains("en", StringComparer.OrdinalIgnoreCase))
+            LanguageLoader.TrySetCurrentLanguagePack("en");
         else
-        {
-            Console.WriteLine(help + "  --                        All subsequent arguments will be passed to the AutoIt-3 script.");
+            LanguageLoader.TrySetCurrentLanguagePack(LanguageLoader.LoadedLanguageCodes[0]);
 
-            if (err.FirstOrDefault() is HelpRequestedError or HelpVerbRequestedError)
-                help_requested = true;
-            else
-                code = -1;
+        return LanguageLoader.CurrentLanguage;
+    });
+
+    private static void HandleParserErrors(LanguagePack lang, CommandLineOptions? result, CommandLineParsingError[] errors, ref int code)
+    {
+        if (errors.Length == 0)
+            return;
+
+        bool fatal = errors.Any(e => e.Fatal);
+
+        code = fatal ? -1 : 0;
+
+        if (fatal || result?.VerbosityLevel > VerbosityLevel.Normal)
+#warning TODO : change to tidy?
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"Command line arguments ({RawCMDLineArguments.Length}):");
+            Console.WriteLine($"    {RawCMDLineArguments.Select(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg).StringJoin(" ")}");
+
+            foreach (CommandLineParsingError err in errors)
+            {
+                Console.ForegroundColor = err.Fatal ? ConsoleColor.Red : ConsoleColor.Yellow;
+                Console.WriteLine($"    {(err.ArgumentIndex < 0 ? "         " : $"Arg. #{err.ArgumentIndex,2}:")} {err.Message}");
+            }
         }
     }
 
-    private static async Task<bool> UpdateTask()
+    private static int Run()
     {
-        if (CommandLineOptions.UpdaterMode is UpdaterMode.none)
+        LanguagePack lang = LanguageLoader.CurrentLanguage!;
+        Task<bool> update_task = UpdateSoftwareTask();
+
+        PrintBanner();
+        PrintDebugMessage(CommandLineOptions.ToString());
+        PrintfDebugMessage("debug.langpack_found", LanguageLoader.LoadedLanguageCodes.Length);
+        PrintfDebugMessage("debug.loaded_langpack", lang);
+        PrintfDebugMessage("debug.interpreter_loading");
+
+        using Interpreter interpreter = Telemetry.Measure(TelemetryCategory.InterpreterInitialization, () => new Interpreter(CommandLineOptions, Telemetry, LanguageLoader));
+
+        PrintfDebugMessage("debug.interpreter_loaded");
+
+        if (update_task.GetAwaiter().GetResult())
+        {
+#warning TODO : print some kind of message???
+            return 0; // update has been performed
+        }
+        if (CommandLineOptions is CommandLineOptions.ViewMode view)
+            return interpreter.ScriptScanner
+                              .ScanScriptFile(SourceLocation.Unknown, view.FilePath, true)
+                              .Match(
+                error =>
+                {
+                    PrintError($"{lang["error.error_in", error.Location ?? SourceLocation.Unknown]}:\n    {error.Message}");
+
+                    return -1;
+                },
+                script =>
+                {
+                    ScriptToken[] tokens = ScriptVisualizer.TokenizeScript(script);
+
+                    Console.WriteLine(tokens.ConvertToVT100(true));
+
+                    return 0;
+                }
+            );
+        else if (CommandLineOptions is CommandLineOptions.RunMode.InteractiveMode interactive)
+            using (InteractiveShell shell = new(interpreter))
+            {
+                if (shell.Initialize())
+                    (InteractiveShell = shell).Run();
+
+                InteractiveShell = null;
+            }
+        else if (CommandLineOptions is CommandLineOptions.RunMode.NonInteractiveMode non_interactive)
+            if (non_interactive is CommandLineOptions.RunMode.NonInteractiveMode.RunLine run_line)
+            {
+                throw new NotImplementedException();
+
+                // TODO
+            }
+            else if (non_interactive is CommandLineOptions.RunMode.NonInteractiveMode.RunScript run_script)
+            {
+                Union<InterpreterError, ScannedScript> resolved = interpreter.ScriptScanner.ScanScriptFile(SourceLocation.Unknown, run_script.FilePath, true);
+                InterpreterError? error = null;
+
+                if (resolved.Is(out ScannedScript? script))
+                {
+                    FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, () => interpreter.Run(InterpreterRunContext.Regular));
+
+                    result.IsFatal(out error);
+
+                    return result.IsError(out int exitcode) ? exitcode : 0;
+                }
+                else
+                    error = resolved.As<InterpreterError>();
+
+                if (error is InterpreterError err)
+                    PrintError($"{lang["error.error_in", err.Location ?? SourceLocation.Unknown]}:\n    {err.Message}");
+            }
+
+        return -1;
+    }
+
+    private static async Task<bool> UpdateSoftwareTask()
+    {
+        if (CommandLineOptions.UpdaterMode is UpdaterMode.None)
             return false;
 
         GithubUpdater updater = new(Telemetry)
         {
-            UpdaterMode = CommandLineOptions.UpdaterMode is UpdaterMode.beta ? GithubUpdaterMode.IncludeBetaVersions : GithubUpdaterMode.ReleaseOnly
+            UpdaterMode = CommandLineOptions.UpdaterMode is UpdaterMode.Beta ? GithubUpdaterMode.IncludeBetaVersions : GithubUpdaterMode.ReleaseOnly
         };
 
         bool success = await updater.FetchReleaseInformationAsync().ConfigureAwait(true);
         LanguagePack lang = LanguageLoader.CurrentLanguage!;
 
-        if (!success && CommandLineOptions.Verbose)
+        if (!success && CommandLineOptions.VerboseOutput)
         {
             PrintWarning(null, lang["warning.unable_to_update", __module__.RepositoryURL + "/releases"]);
 
@@ -523,7 +523,7 @@ public static class MainProgram
 
     private static void SubmitPrint(bool requires_verbose, string prefix, string? msg, bool from_script)
     {
-        if (!CommandLineOptions.Verbose && requires_verbose)
+        if (!CommandLineOptions.VerboseOutput && requires_verbose)
             return;
         else if (msg is null or "")
             return; // TODO : handle this in a better way??
@@ -570,11 +570,11 @@ public static class MainProgram
     /// <param name="message">The message to be printed.</param>
     public static void PrintScriptMessage(string? file, string message) => Telemetry.Measure(TelemetryCategory.ScriptConsoleOut, delegate
     {
-        if (CommandLineOptions.ProgramExecutionMode is ExecutionMode.view)
+        if (CommandLineOptions is CommandLineOptions.ViewMode)
             return;
         else if (InteractiveShell is InteractiveShell shell)
             shell.SubmitPrint(message);
-        else if (!CommandLineOptions.Verbose)
+        else if (!CommandLineOptions.VerboseOutput)
             Console.Write(message);
         else
             SubmitPrint(true, file ?? '<' + LanguageLoader.CurrentLanguage?["general.unknown"] + '>', message.Trim(), true);
@@ -587,7 +587,7 @@ public static class MainProgram
     public static void PrintException(this Exception? exception)
     {
         if (exception is { })
-            if (!CommandLineOptions.Verbose)
+            if (!CommandLineOptions.VerboseOutput)
                 PrintError(exception.Message);
             else
             {
@@ -609,10 +609,10 @@ public static class MainProgram
     /// <param name="message">The error message to be printed.</param>
     public static void PrintError(this string message) => _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Exceptions, delegate
     {
-        if (!CommandLineOptions.Verbose && Console.CursorLeft > 0)
+        if (!CommandLineOptions.VerboseOutput && Console.CursorLeft > 0)
             Console.WriteLine();
 
-        if (CommandLineOptions.Verbose)
+        if (CommandLineOptions.VerboseOutput)
         {
             ConsoleExtensions.RGBForegroundColor = RGBAColor.Orange;
             Console.WriteLine(@"
@@ -646,7 +646,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
         Console.WriteLine(message.TrimEnd());
         Console.WriteLine(please_report);
 
-        if (CommandLineOptions.Verbose)
+        if (CommandLineOptions.VerboseOutput)
         {
             ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
             Console.WriteLine(new string('_', Console.WindowWidth - 1));
@@ -662,7 +662,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
     /// <param name="message">The warning message to be printed.</param>
     public static void PrintWarning(SourceLocation? location, string message) => _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Warnings, delegate
     {
-        if (!CommandLineOptions.Verbose)
+        if (!CommandLineOptions.VerboseOutput)
         {
             if (Console.CursorLeft > 0)
                 Console.WriteLine();
@@ -704,7 +704,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
         else if (Console.CursorLeft > 0)
             Console.WriteLine();
 
-        bool print_telemetry = CommandLineOptions is { Verbose: true } or { PrintTelemetry: true };
+        bool print_telemetry = CommandLineOptions.VerbosityLevel >= VerbosityLevel.Telemetry;
         int width = Math.Min(Console.WindowWidth, Console.BufferWidth);
 
         if (print_telemetry)
@@ -1106,17 +1106,38 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
         Console.WriteLine(new string('_', width - 1));
     });
 
+    public static void PrintVersion()
+    {
+        DataStream hash = DataStream.FromFile(ASM_FILE).Hash(HashFunction.SHA256);
+        string[] version = hash.ToDrunkBishop().SplitIntoLines();
+        LanguagePack? lang = LanguageLoader.CurrentLanguage;
+
+        version[0] +=  "  AUTOIT3 INTERPRETER";
+        version[1] += $"    {lang?["banner.written_by", __module__.Author, __module__.Year]}";
+        version[4] += $"  {lang?["banner.version"]} v.{__module__.InterpreterVersion}";
+        version[5] += $"  GIT: {__module__.GitHash}";
+        version[6] += $"  ASM: {hash.ToHexString()}";
+        version[8] += $"  \e[4m{__module__.RepositoryURL}/\e[24m";
+
+
+        _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Printing, delegate
+        {
+            ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
+
+            foreach (string line in version)
+                Console.WriteLine(line);
+        }));
+    }
+
     /// <summary>
     /// Prints the banner synchronously to STDOUT.
     /// </summary>
     public static void PrintBanner()
     {
-        if (CommandLineOptions.Verbose)
+        if (CommandLineOptions.VerboseOutput)
             _print_queue.Enqueue(delegate
             {
                 LanguagePack? lang = LanguageLoader.CurrentLanguage;
-
-                DataStream hash = DataStream.FromFile(ASM_FILE).Hash(HashFunction.SHA256);
 
                 ConsoleExtensions.RGBForegroundColor = RGBAColor.White;
                 Console.WriteLine($@"
@@ -1142,31 +1163,6 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
                 ConsoleExtensions.WriteUnderlined("WARNING!");
                 ConsoleExtensions.RGBForegroundColor = RGBAColor.Salmon;
                 Console.WriteLine(" This may panic your CPU.\n\n");
-
-                PrintDebugMessage($"Visual signature (used to easily verify whether two AutoIt-versions are equal):\n{hash.ToDrunkBishop()}\n{hash.ToHexString()}");
             });
     }
-}
-
-/// <summary>
-/// An enumeration of different program execution modes.
-/// </summary>
-public enum ExecutionMode
-{
-    normal,
-    view,
-    interactive,
-    tidy,
-
-    n = normal,
-    v = view,
-    i = interactive,
-    t = tidy,
-}
-
-public enum UpdaterMode
-{
-    release,
-    beta,
-    none,
 }
