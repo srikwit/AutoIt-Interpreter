@@ -36,6 +36,21 @@ strings:
             history_scroll: "Scroll up/down through the history"
             text_naviation: "Navigate inside the text"
             text_word_naviation: "Jump by words inside the text"
+    command_line:
+        help:
+            TODO
+
+
+        error:
+            unknown_option: "Unknown or unrecognized command line option '{0}'."
+            invalid_enum_value: "Value '{0}' cannot be used for option '{1}', as it is unknown or not parsable."
+            ambiguous_enum_value: "Value '{0}' cannot be used for option '{1}', as it is ambiguous between the following known values: '{2}'."
+            conflicting_option: "Option '{0}' has already been set to a different value (current: '{1}', previous: '{2}')."
+            duplicate_option: "Option '{0}' has already been set to a value of '{1}'. This argument will therefore be ignored."
+            missing_file_path: "No file path has been provided. Please provide a path to a valid AutoIt3 script file."
+            missing_au3_code_line: "No AutoIt3 code line has been provided. Please provide a valid AutoIt3 code line."
+            unsupported_os: "The current operating system '{0}' does not support setting the option '{1}'."
+            missing_option: "Option '{0}' requires a value to be set. Please provide a value for this option."
     debug:
         name: "Name"
         index: "Index"
@@ -174,6 +189,7 @@ strings:
         error_in: "ERROR in {0}"
         please_report_bug: "If you believe that this is a bug, please report it to {0}."
         not_yet_implemented: "The functionality '{0}' has not yet been implemented. We're sorry :/"
+        unknown_language_pack: "The language pack '{0}' could not be found. Available/loaded language packs: '{1}'."
         update_failed: "The update {0} (published on {1}) could not be downloaded and installed from \e[4m{2}\e[24m. Please verify that you have a stable Internet connection and that the AutoIt-Interpreter has read/write access to its directory and sub-directories. A failure may indicate a corrupted installation and/or update."
         au3_caller_only: "The execution of the function '{0}' requires an Au3 (non-native) call frame."
         byref_default: "The ByRef-parameter '{0}' cannot have a default value."

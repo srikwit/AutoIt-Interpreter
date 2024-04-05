@@ -3,12 +3,10 @@ using System.Linq;
 using System.Text;
 using System;
 
-using Unknown6656.AutoIt3.Localization;
-using System.ComponentModel;
-using Microsoft.VisualStudio.OLE.Interop;
 using Unknown6656.AutoIt3.Runtime.Native;
+using Unknown6656.AutoIt3.Localization;
 
-namespace Unknown6656.AutoIt3.CommandLineInterface.__experimental__;
+namespace Unknown6656.AutoIt3.CLI;
 
 
 public enum VerbosityLevel
@@ -38,28 +36,29 @@ public enum UpdaterMode
 }
 
 
-public abstract record CommandLineParsingResult
+public abstract record CommandLineOptions
 {
     public required string LanguageCode { get; set; }
     public required UpdaterMode UpdaterMode { get; set; }
+    public virtual VerbosityLevel VerbosityLevel { get; set; } = VerbosityLevel.Normal;
 
     public override string ToString() => $"--{CommandLineParser.OPTION_LANG} {LanguageCode} --{CommandLineParser.OPTION_CHECK_FOR_UPDATE} {UpdaterMode}";
 
 
     public sealed record ShowHelp
-        : CommandLineParsingResult
+        : CommandLineOptions
     {
         public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_HELP}";
     }
 
     public sealed record ShowVersion
-        : CommandLineParsingResult
+        : CommandLineOptions
     {
         public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_VERSION}";
     }
 
     public sealed record ViewMode
-        : CommandLineParsingResult
+        : CommandLineOptions
     {
         public required string FilePath { get; set; }
 
@@ -67,7 +66,7 @@ public abstract record CommandLineParsingResult
     }
 
     public abstract record RunMode
-        : CommandLineParsingResult
+        : CommandLineOptions
     {
         public required bool RedirectStdErrToStdOut { get; set; }
         public required bool DontLoadPlugins { get; set; }
@@ -103,7 +102,7 @@ public abstract record CommandLineParsingResult
         public abstract record NonInteractiveMode
             : RunMode
         {
-            public required VerbosityLevel VerbosityLevel { get; set; }
+            public override required VerbosityLevel VerbosityLevel { get; set; }
             public required bool DisableCOMConnector { get; set; } // windows only
             public required bool DisableGUIConnector { get; set; }
 
@@ -205,7 +204,7 @@ public class CommandLineParser(LanguagePack language)
     internal const string OPTION_EXECUTE_LINE = "AutoIt3ExecuteLine";
 
 
-    public LanguagePack Language { get; } = language;
+    public LanguagePack Language { get; private set; } = language;
 
     private static string? TryMapShortOption(char short_option) => short_option switch
     {
@@ -232,7 +231,7 @@ public class CommandLineParser(LanguagePack language)
         int index = 0;
 
 
-        void unknown_option(string option, bool fatal) => errors.Add(new(index, Language["command_line.unknown_option", option], fatal));
+        void unknown_option(string option, bool fatal) => errors.Add(new(index, Language["command_line.error.unknown_option", option], fatal));
 
         void process_option(string option, string? value)
         {
@@ -242,9 +241,9 @@ public class CommandLineParser(LanguagePack language)
             {
                 if (option is not null and T prev)
                     if (Equals(prev, value))
-                        errors.Add(new(index, Language["command_line.duplicate_option", normalized_option, option], false));
+                        errors.Add(new(index, Language["command_line.error.duplicate_option", normalized_option, option], false));
                     else
-                        errors.Add(new(index, Language["command_line.conflicting_option", normalized_option, value, option], false));
+                        errors.Add(new(index, Language["command_line.error.conflicting_option", normalized_option, value, option], false));
                 else
                     option = value;
             }
@@ -265,9 +264,9 @@ public class CommandLineParser(LanguagePack language)
                     if (candidates.Length == 1)
                         set_option(ref option, candidates[0]);
                     else if (candidates.Length == 0)
-                        errors.Add(new(index, Language["command_line.invalid_enum_value", input, normalized_option], true));
+                        errors.Add(new(index, Language["command_line.error.invalid_enum_value", input, normalized_option], true));
                     else
-                        errors.Add(new(index, Language["command_line.ambiguous_enum_value", input, normalized_option, string.Join("', '", candidates)], true));
+                        errors.Add(new(index, Language["command_line.error.ambiguous_enum_value", input, normalized_option, string.Join("', '", candidates)], true));
                 }
             }
 
@@ -289,7 +288,7 @@ public class CommandLineParser(LanguagePack language)
                     if (NativeInterop.OperatingSystem is OS.Windows)
                         set_option(ref raw.no_com, true);
                     else
-                        errors.Add(new(index, Language["command_line.unsupported_os", NativeInterop.OperatingSystem, normalized_option], true));
+                        errors.Add(new(index, Language["command_line.error.unsupported_os", NativeInterop.OperatingSystem, normalized_option], true));
                 else if (normalized_option is OPTION_NO_GUI)
                     set_option(ref raw.no_gui, true);
                 else if (normalized_option is OPTION_STRICT)
@@ -355,24 +354,24 @@ public class CommandLineParser(LanguagePack language)
         return raw;
     }
 
-    public CommandLineParsingResult? Parse(string[] argv, out List<CommandLineParsingError> errors)
+    public CommandLineOptions? Parse(string[] argv, out List<CommandLineParsingError> errors)
     {
         errors = [];
 
         RawCommandLineOptions raw = ParseRaw(argv, errors);
         UpdaterMode updatemode = raw.updatemode ?? UpdaterMode.Release;
         ExecutionMode execmode = raw.execmode ?? ExecutionMode.Normal;
-        string langcode = raw.langcode ?? "en";
+        string langcode = raw.langcode ?? Language.LanguageCode;
 
         if (raw.show_help ?? false)
-            return new CommandLineParsingResult.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode };
+            return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode };
         else if (raw.show_version ?? false)
-            return new CommandLineParsingResult.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode };
+            return new CommandLineOptions.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode };
         else if (execmode is ExecutionMode.View)
             if (raw.script_path is null)
-                errors.Add(new(-1, Language["command_line.missing_file_path"], true));
+                errors.Add(new(-1, Language["command_line.error.missing_file_path"], true));
             else
-                return new CommandLineParsingResult.ViewMode { LanguageCode = langcode, UpdaterMode = updatemode, FilePath = raw.script_path };
+                return new CommandLineOptions.ViewMode { LanguageCode = langcode, UpdaterMode = updatemode, FilePath = raw.script_path };
         else
         {
             bool strict_au3 = raw.strict_au3 ?? false;
@@ -381,7 +380,7 @@ public class CommandLineParser(LanguagePack language)
             bool redirect_stderr = raw.redirect_stderr ?? false;
 
             if (execmode is ExecutionMode.Interactive)
-                return new CommandLineParsingResult.RunMode.InteractiveMode
+                return new CommandLineOptions.RunMode.InteractiveMode
                 {
                     LanguageCode = langcode,
                     UpdaterMode = updatemode,
@@ -391,7 +390,7 @@ public class CommandLineParser(LanguagePack language)
                     StrictAU3Mode = strict_au3,
                 };
             else if (raw.script_path is null)
-                errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.missing_au3_code_line" : "command_line.missing_file_path"], true));
+                errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.error.missing_au3_code_line" : "command_line.error.missing_file_path"], true));
             else
             {
                 VerbosityLevel verbosity = raw.verbosity ?? VerbosityLevel.Normal;
@@ -399,7 +398,7 @@ public class CommandLineParser(LanguagePack language)
                 bool no_gui = raw.no_gui ?? false;
 
                 if (execmode is ExecutionMode.Line)
-                    return new CommandLineParsingResult.RunMode.NonInteractiveMode.RunLine
+                    return new CommandLineOptions.RunMode.NonInteractiveMode.RunLine
                     {
                         LanguageCode = langcode,
                         UpdaterMode = updatemode,
@@ -413,7 +412,7 @@ public class CommandLineParser(LanguagePack language)
                         Code = raw.script_path,
                     };
                 else
-                    return new CommandLineParsingResult.RunMode.NonInteractiveMode.RunScript
+                    return new CommandLineOptions.RunMode.NonInteractiveMode.RunScript
                     {
                         LanguageCode = langcode,
                         UpdaterMode = updatemode,
@@ -431,6 +430,11 @@ public class CommandLineParser(LanguagePack language)
         }
 
         return null;
+    }
+
+    public void PrintHelp()
+    {
+
     }
 
 
