@@ -91,10 +91,10 @@ public sealed class LanguageLoader
     }
 }
 
-public sealed class LanguagePack
+public sealed partial class LanguagePack
 {
     private static readonly Regex REGEX_YAML = new(@"^(?<indent> *)(?<quote>""|)(?<key>[^"":]+)\k<quote> *: *(?<value>""(?<string>.*)""|true|false|[+\-]\d+|[+\-]0x[0-9a-f]+|null)? *(#.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\""]|[xu][0-9a-fA-F]{1,4})", RegexOptions.Compiled);
+    private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\""]|[xu][0-9a-f]{1,4})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private readonly IDictionary<string, string> _strings;
 
@@ -121,7 +121,8 @@ public sealed class LanguagePack
 
         if (_strings?.FirstOrDefault(kvp => kvp.Key.Equals(key, StringComparison.OrdinalIgnoreCase)).Value is string fmt_str)
         {
-            int argc = Regex.Matches(fmt_str, @"\{(?<num>\d+)\}")
+            int argc = FormatStringRegex()
+                            .Matches(fmt_str)
                             .Cast<Match>()
                             .Select(m => byte.TryParse(m.Groups["num"].Value, out byte b) ? b + 1 : 0)
                             .Append(0)
@@ -216,4 +217,8 @@ public sealed class LanguagePack
 
         return sb.ToString();
     }
+
+
+    [GeneratedRegex(@"\{(?<num>\d+)\}", RegexOptions.Compiled | RegexOptions.NonBacktracking)]
+    private static partial Regex FormatStringRegex();
 }
