@@ -103,5 +103,3 @@ body:
       label: Additional Info
       description: Additional information you'd like to provide.
       placeholder: Did we miss anything?
-    validation:
-      required: false
