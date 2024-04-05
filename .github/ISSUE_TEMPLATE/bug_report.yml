@@ -61,6 +61,21 @@ body:
         - Linux
         - Other POSIX compliant OS
         - Other non-POSIX compliant OS
+    validation:
+      required: true
+  - type: dropdown
+    id: os-arch
+    attributes:
+      label: Operating System Architecture
+      multiple: false
+      options:
+        - x86
+        - x64
+        - arm
+        - arm64
+        - Other
+    validation:
+      required: true
   - type: input
     id: os-name
     attributes:
@@ -103,11 +118,3 @@ body:
       placeholder: Did we miss anything?
     validation:
       required: false
-
-### Environment
- - OS and Architecture: _[e.g. Windows 10 64Bit, Build № 42] (this can be obtained using the command `ver` on windows or `uname -a` on linux)_
-- _insert additional configuration information if needed_
-
-<!-- optional -->
-### Additional context
-Add any other context about the problem here.
