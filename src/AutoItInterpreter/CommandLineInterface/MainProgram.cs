@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -249,7 +249,7 @@ public static class MainProgram
     {
         ConsoleExtensions.ThrowOnInvalidConsoleMode = false;
 
-        if (!ConsoleExtensions.SupportsVTEscapeSequences)
+        if (!ConsoleExtensions.SupportsVT100EscapeSequences)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("""
@@ -1137,6 +1137,13 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
                 Console.WriteLine(line);
         }));
     }
+
+    private static void PrintHelp(CommandLineParser parser) => _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Printing, delegate
+    {
+        string help = parser.RenderHelpMenu(Console.BufferWidth);
+
+        Console.WriteLine(help);
+    }));
 
     /// <summary>
     /// Prints the banner synchronously to STDOUT.
