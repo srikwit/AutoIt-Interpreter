@@ -131,7 +131,15 @@ public sealed partial class LanguagePack
             if (args.Length < argc)
                 Array.Resize(ref args, argc);
 
-            formatted = string.Format(fmt_str, args);
+            try
+            {
+                formatted = string.Format(fmt_str, args);
+            }
+#warning TODO : check if we should simply ignore all FormatExceptions
+            catch (FormatException)
+            {
+                formatted = fmt_str;
+            }
 
             return true;
         }
