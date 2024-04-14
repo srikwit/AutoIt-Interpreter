@@ -1,20 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System;
 
 using Unknown6656.AutoIt3.Runtime.Native;
 using Unknown6656.AutoIt3.Localization;
+using Unknown6656.Controls.Console;
+using Unknown6656.Generics;
+using Unknown6656.Imaging;
+using Unknown6656.Common;
 
 namespace Unknown6656.AutoIt3.CLI;
 
 
 public enum VerbosityLevel
 {
-    Tidy,
+    Quiet,
     Normal,
     Telemetry,
-    FullDebug,
+    Verbose,
 }
 
 /// <summary>
@@ -35,15 +40,14 @@ public enum UpdaterMode
     None,
 }
 
-
 public abstract record CommandLineOptions
 {
     public required string LanguageCode { get; set; }
     public required UpdaterMode UpdaterMode { get; set; }
-    public virtual VerbosityLevel VerbosityLevel { get; set; } = VerbosityLevel.Normal;
+    public required VerbosityLevel VerbosityLevel { get; set; }
     public virtual bool StrictAU3Mode { get; set; } = true;
 
-    public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.FullDebug;
+    public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.Verbose;
 
     public override string ToString() => $"--{CommandLineParser.OPTION_LANG} {LanguageCode} --{CommandLineParser.OPTION_CHECK_FOR_UPDATE} {UpdaterMode}";
 
@@ -106,7 +110,6 @@ public abstract record CommandLineOptions
         public abstract record NonInteractiveMode
             : RunMode
         {
-            public override required VerbosityLevel VerbosityLevel { get; set; }
             public required bool DisableCOMConnector { get; set; } // windows only
             public required bool DisableGUIConnector { get; set; }
 
@@ -157,41 +160,17 @@ public abstract record CommandLineOptions
 
 public sealed record CommandLineParsingError(int ArgumentIndex, string Message, bool Fatal);
 
-/*
-SUPPORTED AUTOIT3 COMMAND LINE OPTIONS:
-
-    -m<m>, --mode <mode>        The program's execution mode. Possible values are 'normal' (n), 'interactive' (i), and 'view' (v). The default value is 'normal'. This will run the specified script. The value 'view' indicates that the interpreter shall only display a syntax highlighted version of the script. The value 'interactive' starts the interactive AutoIt shell. The value 'tidy' formats the speicified script file.
-    -N, --no-plugins            Prevents the loading of interpreter plugins/extensions.
-    -s, --strict                Indicates that only strict Au3-features and -syntaxes should be be supported (Extensions to the AutoIt language will be interpreted as errors).
-    -e, --ignore-errors         Ignores syntax and evaluation errors during parsing (unsafe!). This can lead to undefined and non-deterministic behaviour.
-    -t, --telemetry             Prints the interpreter telemetry. A verbosity level of 'v' will automatically set this flag.  NOTE: All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might suggest. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server.
-    -v, --verbosity <level>     Indicates that the interpreter should also print debug messages.
-
-    -v0                             tidy
-    -v1 / -vn                       normal
-    -v2 / -vt / -t / --telemetry    telemetry
-    -v3 / -vv / -v / --verbose      full debug
-
-    -u, --check-for-update <mode> Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\e[4mhttps://github.com/unknown6656/AutoIt3/releases\e[24m).
-    -l, --lang <lang>           The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.
-    -?, --help                  Shows this help message.
-    -V, --version               Shows the interpreter version.
-
-                            //    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/...).")]
-    -ErrorStdOut
-    -AutoIt3ExecuteScript
-    -AutoIt3ExecuteLine
- */
-
-public class CommandLineParser(LanguagePack language)
+public partial class CommandLineParser(LanguagePack language)
 {
+    internal static readonly Regex _regex_fmtstring = new(@"\{(?<content>[^\}:,]+)(?<format>(,[^\}:]+)?(:[^\}]+)?)\}", RegexOptions.Compiled | RegexOptions.NonBacktracking);
+
     internal const string OPTION_MODE = "mode";
     internal const string OPTION_NO_PLUGINS = "no-plugins";
     internal const string OPTION_NO_COM = "no-com";
     internal const string OPTION_NO_GUI = "no-gui";
     internal const string OPTION_STRICT = "strict";
     internal const string OPTION_IGNORE_ERRORS = "ignore-errors";
-    internal const string OPTION_CHECK_FOR_UPDATE = "check-for-update";
+    internal const string OPTION_CHECK_FOR_UPDATE = "update";
     internal const string OPTION_LANG = "lang";
     internal const string OPTION_HELP = "help";
     internal const string OPTION_VERBOSE = "verbose"; // TODO: phase out this option in the future
@@ -285,7 +264,7 @@ public class CommandLineParser(LanguagePack language)
                 set_enum_option(ref raw.updatemode, value);
             else if (normalized_option is OPTION_VERBOSITY)
             {
-
+#warning TODO : add parsing for -vv
                 set_enum_option(ref raw.verbosity, value);
             }
             else if (normalized_option is OPTION_LANG)
@@ -313,7 +292,7 @@ public class CommandLineParser(LanguagePack language)
                 else if (normalized_option is OPTION_REDIRECT_STDOUT)
                     set_option(ref raw.redirect_stderr, true);
                 else if (normalized_option is OPTION_VERBOSE)
-                    set_option(ref raw.verbosity, VerbosityLevel.FullDebug);
+                    set_option(ref raw.verbosity, VerbosityLevel.Verbose);
                 else if (normalized_option is OPTION_TELEMETRY)
                     set_option(ref raw.verbosity, VerbosityLevel.Telemetry);
                 else if (normalized_option is OPTION_EXECUTE_LINE)
@@ -370,19 +349,20 @@ public class CommandLineParser(LanguagePack language)
         errors = [];
 
         RawCommandLineOptions raw = ParseRaw(argv, errors);
+        VerbosityLevel verbosity = raw.verbosity ?? VerbosityLevel.Normal;
         UpdaterMode updatemode = raw.updatemode ?? UpdaterMode.Release;
         ExecutionMode execmode = raw.execmode ?? ExecutionMode.Normal;
         string langcode = raw.langcode ?? Language.LanguageCode;
 
         if (raw.show_help ?? false)
-            return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode };
+            return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity };
         else if (raw.show_version ?? false)
-            return new CommandLineOptions.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode };
+            return new CommandLineOptions.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity };
         else if (execmode is ExecutionMode.View)
             if (raw.script_path is null)
                 errors.Add(new(-1, Language["command_line.error.missing_file_path"], true));
             else
-                return new CommandLineOptions.ViewMode { LanguageCode = langcode, UpdaterMode = updatemode, FilePath = raw.script_path };
+                return new CommandLineOptions.ViewMode { LanguageCode = langcode, UpdaterMode = updatemode, FilePath = raw.script_path, VerbosityLevel = verbosity };
         else
         {
             bool strict_au3 = raw.strict_au3 ?? false;
@@ -399,13 +379,13 @@ public class CommandLineParser(LanguagePack language)
                     IgnoreErrors = ignore_errors,
                     RedirectStdErrToStdOut = redirect_stderr,
                     StrictAU3Mode = strict_au3,
+                    VerbosityLevel = verbosity,
                     ScriptArguments = [.. raw.script_options],
                 };
             else if (string.IsNullOrWhiteSpace(raw.script_path))
                 errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.error.missing_au3_code_line" : "command_line.error.missing_file_path"], true));
             else
             {
-                VerbosityLevel verbosity = raw.verbosity ?? VerbosityLevel.Normal;
                 bool no_com = raw.no_com ?? false;
                 bool no_gui = raw.no_gui ?? false;
 
@@ -445,9 +425,241 @@ public class CommandLineParser(LanguagePack language)
         return null;
     }
 
-    public void PrintHelp()
+    private static string FormatOption(int indentation, string option, int option_width, string description, int total_width)
     {
+        int description_width = total_width - indentation - option_width;
+        List<string> outlines = new();
+        string curr_string = "";
 
+        foreach (string line in description.SplitIntoLines())
+        {
+            Match[] esc_seq = line.MatchVT100EscapeSequences().ToArray();
+            int src_offs = 0;
+            int dst_offs = 0;
+
+            for (int i = 0; i < esc_seq.Length; ++i)
+            {
+                string prepend = line[src_offs..esc_seq[i].Index];
+
+                while (prepend.Length > description_width - dst_offs)
+                {
+                    outlines.Add(curr_string + prepend[..(description_width - dst_offs)]);
+                    prepend = prepend[(description_width - dst_offs)..];
+                    curr_string = "";
+                    dst_offs = 0;
+                }
+
+                curr_string += prepend + esc_seq[i].Value;
+                dst_offs = prepend.Length;
+                src_offs = esc_seq[i].Index + esc_seq[i].Length;
+            }
+
+            outlines.Add(curr_string + line[src_offs..]);
+            curr_string = "";
+        }
+
+        int opt_len = option.Length - option.MatchVT100EscapeSequences().Sum(m => m.Length);
+        string opt_padding = opt_len < option_width ? new(' ', option_width - opt_len) : "";
+
+        return (from t in outlines.WithIndex()
+                let padding = t.Index == 0 ? new string(' ', indentation) + option + opt_padding : new(' ', indentation + option_width)
+                select padding + t.Item + '\n'
+                ).StringConcat();
+    }
+
+    private static string FormatHelpString(FormattableString fstring, VT100Stylesheet stylesheet) => FormatHelpString(fstring.Format, stylesheet, fstring.GetArguments());
+
+    private static string FormatHelpString(string fstring, VT100Stylesheet stylesheet, params object?[] args) => stylesheet.DefaultVT100Style + _regex_fmtstring.Replace(fstring, match =>
+    {
+        string content = match.Groups["content"].Value;
+        string format = match.Groups["format"].Value;
+
+        if (int.TryParse(content, out int index) && index < args.Length)
+            content = string.Format($"{{0{format}}}", args[index]);
+        else if (stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
+            content = vt100 + content;
+        else
+            content = string.Format($"{{0{format}}}", content);
+
+        return content + stylesheet.DefaultVT100Style;
+    });
+
+    private HelpPage BuildHelpPage()
+    {
+        string executable = NativeInterop.OperatingSystem is OS.Linux or OS.UnixLike or OS.MacOS ? "./autoit3" : "autoit3";
+
+        return new HelpPage(Language["command_line.help.title"], [
+            new HelpSection(null, Language["command_line.help.intro", executable]),
+            new HelpExamples(
+                Language["command_line.help.usage.header"],
+                null,
+                [
+                    ($"{executable:executable} {"--" + OPTION_HELP:option}", null),
+                    ($"{executable:executable} {"--" + OPTION_VERSION:option}", null),
+                    ($"{executable:executable} {"-m":option}{'i':value}", null),
+                    ($"{executable:executable} {$"[{Language["command_line.help.placeholder.options"]}]":optional} {$"<{Language["command_line.help.placeholder.script_path"]}>":placeholder} {$"[{Language["command_line.help.placeholder.script_args"]}]":optional}", null),
+                ]
+            ),
+            new HelpReference(
+                null,
+                Language["command_line.help.options.syntax.text"],
+                [
+                    new(["{-o:option}"], Language["command_line.help.options.syntax.short_no_value"]),
+                    new(["{-o:option}{v:value}"], Language["command_line.help.options.syntax.short_value"]),
+                    new(["{-o:option}{value:value}"], Language["command_line.help.options.syntax.short_full_value"]),
+                    new(["{--option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
+                    new(["{--option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
+                    new(["{/option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
+                    new(["{/option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
+                ]
+            ),
+            new HelpReference(
+                Language["command_line.help.options.header"],
+                null,
+                [
+                    new(["-h", "-?", "--help"], Language["command_line.help.options.help"]),
+                    new(["-V", "--version"], Language["command_line.help.options.version"]),
+                    new(["{-m:option}{mode:value}", "{--mode:option} {mode:value}"], Language["command_line.help.options.mode.header"], default, [
+                        new(["n", "normal"], Language["command_line.help.options.mode.normal"], ValueProperties.DefaultValue),
+                        new(["v", "view"], Language["command_line.help.options.mode.view"]),
+                        new(["l", "line"], Language["command_line.help.options.mode.line"]),
+                        new(["i", "interactive"], Language["command_line.help.options.mode.interactive"]),
+                    ]),
+                    new(["{-v:option}{level:value}", "{--verbosity:option} {level:value}"], Language["command_line.help.options.verbosity.header"], default, [
+                        new(["0", "q", "quiet"], Language["command_line.help.options.verbosity.quiet"], ValueProperties.DefaultValue),
+                        new(["1", "n", "normal"], Language["command_line.help.options.verbosity.normal"]),
+                        new(["2", "t", "telemetry"], Language["command_line.help.options.verbosity.telemetry"]),
+                        new(["3", "v", "verbose"], Language["command_line.help.options.verbosity.verbose"]),
+                    ]),
+                    new(["-N", "--no-plugins"], Language["command_line.help.options.no_plugins"]),
+                    new(["-C", "--no-com"], Language["command_line.help.options.no_com"]),
+                    new(["-G", "--no-gui"], Language["command_line.help.options.no_gui"]),
+                    new(["-s", "--strict"], Language["command_line.help.options.strict"]),
+                    new(["-e", "--ignore-errors"], Language["command_line.help.options.ignore_errors"], OptionProperties.Unsafe),
+                    new(["{-u:option}{mode:value}", "{--update:option} {mode:value}"], Language["command_line.help.options.update.header"], default, [
+                        new(["r", "release"], Language["command_line.help.options.update.release"], ValueProperties.DefaultValue),
+                        new(["b", "beta"], Language["command_line.help.options.update.beta"]),
+                        new(["n", "none"], Language["command_line.help.options.update.none"]),
+                    ]),
+                    new(["{-l:option}{lang_code:value}", "{--lang:option} {lang_code:value}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
+                    new(["--ErrorStdOut"], Language["command_line.help.options.redirect_stderr"]),
+                    new(["--"], Language["command_line.help.options.ignore_subsequent"]),
+                    new(["-t", "--telemetry"], Language["command_line.help.same_as", "{--verbosity:option} {telemetry:value}"], OptionProperties.Obsolete),
+                    new(["-v", "--verbose"], Language["command_line.help.same_as", "{--verbosity:option} {verbose:value}"], OptionProperties.Obsolete),
+                    new(["--AutoIt3ExecuteScript"], Language["command_line.help.same_as", "{--mode:option} {normal:value}"], OptionProperties.Obsolete),
+                    new(["--AutoIt3ExecuteLine"], Language["command_line.help.same_as", "{--mode:option} {line:value}"], OptionProperties.Obsolete),
+                ]
+            ),
+            new HelpSection(Language["command_line.help.script_path.header"], Language["command_line.help.script_path.text"]),
+            new HelpSection(Language["command_line.help.script_args.header"], Language["command_line.help.script_args.text"]),
+
+            // TODO
+            new HelpExamples(
+                Language["command_line.help.examples.header"],
+                null,
+                [
+                    ($"{executable:executable} --{OPTION_HELP:option}", Language["command_line.help.examples.help"]),
+                    ($"{executable:executable} --{OPTION_VERSION:option}", Language["command_line.help.examples.version"]),
+                    ($"{executable:executable} -m{'i':value}", Language["command_line.help.examples.interactive"]),
+                    ($"{executable:executable} -m{'n':value} <script_path>", Language["command_line.help.examples.normal"]),
+                    ($"{executable:executable} -m{'v':value} <script_path>", Language["command_line.help.examples.view"]),
+                    ($"{executable:executable} -m{'l':value} \"<code>\"", Language["command_line.help.examples.line"]),
+                    ($"{executable:executable} -m{'n':value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    ($"{executable:executable} -m{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2", Language["command_line.help.examples.script_args"]),
+                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
+                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
+                ]
+            ),
+        ]);
+    }
+
+    public string RenderHelpMenu(int console_width)
+    {
+        if (console_width < 110)
+            console_width = short.MaxValue; // disable block wrapping, use single line wrapping instead
+
+        HelpPage help_page = BuildHelpPage();
+        VT100Stylesheet stylesheet = new(
+            new()
+            {
+                ["header"] = "\e[1;4m" + RGBAColor.NavajoWhite.ToVT100ForegroundString(),
+                ["executable"] = RGBAColor.LightSteelBlue.ToVT100ForegroundString(),
+                ["optional"] = RGBAColor.Gray.ToVT100ForegroundString(),
+                ["option"] = RGBAColor.Coral.ToVT100ForegroundString(),
+                ["value"] = RGBAColor.LightGreen.ToVT100ForegroundString(),
+                ["error"] = RGBAColor.Red.ToVT100ForegroundString(),
+                ["warning"] = RGBAColor.Orange.ToVT100ForegroundString(),
+                ["placeholder"] = RGBAColor.Plum.ToVT100ForegroundString(),
+                ["description"] = RGBAColor.White.ToVT100ForegroundString(),
+            },
+            RGBAColor.White.ToVT100ForegroundString()
+        );
+        StringBuilder sb = new();
+
+        sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:title}\n", stylesheet));
+
+        foreach (HelpSection section in help_page.Sections)
+        {
+            if (section.Header is string header)
+                sb.AppendLine(FormatHelpString($"{header:title}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet));
+            else if (!string.IsNullOrEmpty(section.Text))
+                sb.AppendLine(FormatHelpString(section.Text, stylesheet));
+
+            if (section is HelpExamples examples)
+                foreach ((FormattableString example, string? descr) in examples.Examples)
+                    if (descr is { } d)
+                        sb.Append(FormatOption(
+                            4,
+                            FormatHelpString(example, stylesheet),
+                            53,
+                            FormatHelpString(d, stylesheet),
+                            console_width
+                        ));
+                    else
+                        sb.Append("    ")
+                          .AppendLine(FormatHelpString(example, stylesheet));
+            else if (section is HelpReference reference)
+                foreach (OptionReference option in reference.OptionReferences)
+                {
+                    string descr = option.Description;
+
+                    if (option.Properties.HasFlag(OptionProperties.Unsafe))
+                        descr = $"{{[{Language["command_line.help.options.unsafe"]}]:warning}} {descr}";
+                    else if (option.Properties.HasFlag(OptionProperties.Obsolete))
+                        descr = $"{{[{Language["command_line.help.options.obsolete"]}]:error}} {descr}";
+
+                    sb.Append(FormatOption(
+                        4,
+                        FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:option}}").StringJoin(", "), stylesheet),
+                        53,
+                        FormatHelpString(descr, stylesheet),
+                        console_width
+                    ));
+
+                    foreach (ValueReference value in option.ValueReferences ?? [])
+                    {
+                        descr = value.Description;
+
+                        if (value.Properties.HasFlag(ValueProperties.DefaultValue))
+                            descr = $"{{[{Language["command_line.help.options.default"]}]:optional}} {descr}";
+                        else if (value.Properties.HasFlag(ValueProperties.Obsolete))
+                            descr = $"{{[{Language["command_line.help.options.obsolete"]}]:error}} {descr}";
+
+                        sb.Append(FormatOption(
+                            8,
+                            FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:value}}").StringJoin(", "), stylesheet),
+                            53,
+                            FormatHelpString(descr, stylesheet),
+                            console_width
+                        ));
+                    }
+                }
+
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
     }
 
 
@@ -467,5 +679,35 @@ public class CommandLineParser(LanguagePack language)
         public bool? redirect_stderr = null;
         public List<string> script_options = [];
         public string? script_path = null;
+    }
+
+    private record VT100Stylesheet(Dictionary<string, string> VT100Styles, string DefaultVT100Style = "\e[0m");
+
+    private record HelpPage(string Title, HelpSection[] Sections);
+
+    private record HelpSection(string? Header, string? Text);
+
+    private sealed record HelpExamples(string Header, string? Text, (FormattableString Example, string? Description)[] Examples) : HelpSection(Header, Text);
+
+    private sealed record HelpReference(string? Header, string? Text, OptionReference[] OptionReferences) : HelpSection(Header, Text);
+
+    private sealed record OptionReference(string[] Options, string Description, OptionProperties Properties = OptionProperties.None, ValueReference[]? ValueReferences = null);
+
+    private sealed record ValueReference(string[] Values, string Description, ValueProperties Properties = ValueProperties.None);
+
+    [Flags]
+    private enum OptionProperties
+    {
+        None = 0,
+        Unsafe = 1,
+        Obsolete = 2,
+    }
+
+    [Flags]
+    private enum ValueProperties
+    {
+        None = 0,
+        DefaultValue = 1,
+        Obsolete = 2,
     }
 }

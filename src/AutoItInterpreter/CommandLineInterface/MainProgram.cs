@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -208,7 +208,7 @@ public static class MainProgram
                 if (cli_options is CommandLineOptions.ShowVersion)
                     PrintVersion();
                 else if (cli_options is CommandLineOptions.ShowHelp)
-                    parser.PrintHelp();
+                    PrintHelp(parser);
                 else
                     exitcode = Run();
             }

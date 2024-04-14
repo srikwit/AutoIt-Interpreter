@@ -2,7 +2,7 @@
     "profiles": {
         "AutoItInterpreter": {
             "commandName": "Project",
-            "commandLineArgs": " -ml \"ConsoleWrite(@OSVERSION)\" -vv",
+            "commandLineArgs": "--help -ml \"ConsoleWrite(@OSVERSION)\" -vv",
             "nativeDebugging": false
         }
     }
