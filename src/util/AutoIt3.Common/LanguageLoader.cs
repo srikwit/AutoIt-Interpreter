@@ -95,6 +95,7 @@ public sealed partial class LanguagePack
 {
     private static readonly Regex REGEX_YAML = new(@"^(?<indent> *)(?<quote>""|)(?<key>[^"":]+)\k<quote> *: *(?<value>""(?<string>.*)""|true|false|[+\-]\d+|[+\-]0x[0-9a-f]+|null)? *(#.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\""]|[xu][0-9a-f]{1,4})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex REGEX_NON_CSFMT_STRING = new(@"\{[^:]+:\d*[^\d\}].*?\}", RegexOptions.Compiled);
 
     private readonly IDictionary<string, string> _strings;
 
@@ -131,14 +132,12 @@ public sealed partial class LanguagePack
             if (args.Length < argc)
                 Array.Resize(ref args, argc);
 
-            try
+            formatted = fmt_str;
+
+            if (fmt_str.Contains('{'))
             {
+                fmt_str = REGEX_NON_CSFMT_STRING.Replace(fmt_str, match => $"{{{match.Value}}}");
                 formatted = string.Format(fmt_str, args);
-            }
-#warning TODO : check if we should simply ignore all FormatExceptions
-            catch (FormatException)
-            {
-                formatted = fmt_str;
             }
 
             return true;
