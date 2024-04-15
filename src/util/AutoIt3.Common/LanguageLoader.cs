@@ -95,7 +95,7 @@ public sealed partial class LanguagePack
 {
     private static readonly Regex REGEX_YAML = new(@"^(?<indent> *)(?<quote>""|)(?<key>[^"":]+)\k<quote> *: *(?<value>""(?<string>.*)""|true|false|[+\-]\d+|[+\-]0x[0-9a-f]+|null)? *(#.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\""]|[xu][0-9a-f]{1,4})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex REGEX_NON_CSFMT_STRING = new(@"\{[^:]+:\d*[^\d\}].*?\}", RegexOptions.Compiled);
+    private static readonly Regex REGEX_NON_CSFMT_STRING = new(@"\{[^:\}]+:\d*[^\d\}].*?\}", RegexOptions.Compiled | RegexOptions.NonBacktracking);
 
     private readonly IDictionary<string, string> _strings;
 

@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -473,11 +473,12 @@ public partial class CommandLineParser(LanguagePack language)
     {
         string content = match.Groups["content"].Value;
         string format = match.Groups["format"].Value;
+        bool sindx = int.TryParse(content, out int index) && index < args.Length;
 
-        if (int.TryParse(content, out int index) && index < args.Length)
+        if (stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
+            content = vt100 + (sindx ? args[index] : content) + stylesheet.DefaultVT100Style;
+        else if (sindx)
             content = string.Format($"{{0{format}}}", args[index]);
-        else if (stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
-            content = vt100 + content;
         else
             content = string.Format($"{{0{format}}}", content);
 
@@ -597,12 +598,12 @@ public partial class CommandLineParser(LanguagePack language)
         );
         StringBuilder sb = new();
 
-        sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:title}\n", stylesheet));
+        sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:header}\n", stylesheet));
 
         foreach (HelpSection section in help_page.Sections)
         {
             if (section.Header is string header)
-                sb.AppendLine(FormatHelpString($"{header:title}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet));
+                sb.AppendLine(FormatHelpString($"{header:header}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet));
             else if (!string.IsNullOrEmpty(section.Text))
                 sb.AppendLine(FormatHelpString(section.Text, stylesheet));
 
