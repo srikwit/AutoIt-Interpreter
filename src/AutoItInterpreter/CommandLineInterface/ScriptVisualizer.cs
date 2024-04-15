@@ -93,16 +93,15 @@ public static class ScriptVisualizer
             }
 
             while (line.Length > 0)
-            {
                 if (line.Match(REGEX_WHITESPACE, out Match match))
                     add_token(match.Length, TokenType.Whitespace);
-                else if (line.Match(ScriptScanner.REGEX_CS, out match))
+                else if (line.Match(ScriptScanner.REGEX_CS, out Match _))
                 {
                     ++comment_level;
 
                     add_token(line.Length, TokenType.Comment);
                 }
-                else if (line.Match(ScriptScanner.REGEX_CE, out match))
+                else if (line.Match(ScriptScanner.REGEX_CE, out Match _))
                 {
                     if (comment_level > 0)
                         --comment_level;
@@ -141,13 +140,18 @@ public static class ScriptVisualizer
                     add_token(match.Length, is_directive ? TokenType.DirectiveOption : TokenType.Identifier);
                 else
                     add_token(1, TokenType.UNKNOWN);
-            }
 
             add_token(0, TokenType.NewLine);
         }
 
         return [.. tokens];
     }
+
+    public static string VisualizeScriptAsVT100(this ScannedScript script, bool print_linebreaks_and_line_numbers) => TokenizeScript(script).ConvertToVT100(print_linebreaks_and_line_numbers);
+
+    public static string VisualizeScriptAsVT100(string au3_script, bool print_linebreaks_and_line_numbers) => TokenizeScript(au3_script).ConvertToVT100(print_linebreaks_and_line_numbers);
+
+    public static string VisualizeScriptAsVT100(IEnumerable<string> au3_script_lines, bool print_linebreaks_and_line_numbers) => TokenizeScript(au3_script_lines).ConvertToVT100(print_linebreaks_and_line_numbers);
 
     /// <summary>
     /// Converts the given script tokens to its VT-100 terminal escape codes and text representation.

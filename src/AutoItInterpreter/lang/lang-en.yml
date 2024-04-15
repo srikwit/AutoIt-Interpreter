@@ -37,7 +37,7 @@ strings:
             text_naviation: "Navigate inside the text"
             text_word_naviation: "Jump by words inside the text"
     command_line:
-        usage_hint: "Use 'autoit3 --help' to seee the usage reference. Alternatively, you can refer to \e[4mhttps://github.com/Unknown6656/AutoIt-Interpreter/wiki/Usage\e[24m."
+        usage_hint: "Use \"autoit3 --help\" to seee the usage reference. Alternatively, you can refer to \e[4mhttps://github.com/Unknown6656/AutoIt-Interpreter/wiki/Usage\e[24m."
         help:
             title: "AutoIt Interpreter CLI Usage"
             intro: "The {0:executable} executable provides a command-line interface for executing AutoIt3 scripts and performing various tasks. Below is a reference guide for using autoit3 from the command line."
@@ -47,19 +47,19 @@ strings:
                 options: "options"
                 script_path: "script_path"
                 script_args: "script_arguments"
-            same_as: "Same as '{0}'"
+            same_as: "Same as \"{0}\""
             options:
-                unsafe: UNSAFE
-                obsolete: OBSOLETE
-                default: DEFAULT
+                unsafe: "UNSAFE"
+                obsolete: "OBSOLETE"
+                default: "DEFAULT"
                 syntax:
                     text: "Please note that all options are parsable using the following syntaxes:"
                     short_no_value: "Sets the option abbreviated with {o:option} to a value of \"{true:value}\"."
                     short_value: "Sets the option abbreviated with {o:option} to \"{v:value}\" (or pre-defined values starting with \"{v:value}\")."
                     short_full_value: "Sets the option abbreviated with {o:option} to the given value \"{value:value}\"."
-                    long_no_value: "Sets the option {option:option} to a value of \"{true:value}\"."
-                    long_value: "Sets the option {option:option} to the given value \"{value:value}\"."
-                header: "Options:"
+                    long_no_value: "Sets {option:option} to a value of \"{true:value}\"."
+                    long_value: "Sets {option:option} to the given value \"{value:value}\"."
+                header: "Options"
                 help: "Shows this help message."
                 version: "Shows the interpreter's version."
                 mode:
@@ -82,23 +82,23 @@ strings:
                 update:
                     header: "Specifies how the interpreter should check for software updates. This requires a connection to the internet, as well as the servers of \e[4mgithub.com\e[24m to be reachable. Possible values are the following:"
                     release: "Only fetch newer versions of the AutoIt interpreter if they're ready for general use."
-                    beta: "Releases marked as 'beta' or 'pre-release' will be included in the search for the newest update. These versions are probable to include some bugs."
+                    beta: "Releases marked as \"beta\" or \"pre-release\" will be included in the search for the newest update. These versions are probable to include some bugs."
                     none: "Updates will not be fetched, even if newer software version are available."
                 language: "The CLI language code to be used by the compiler shell. The default value is \"{en:value}\" for the English language pack. Language packs are fetched from the following directory: \"{0}\""
                 redirect_stderr: "Redirects the standard error stream to the standard output stream."
                 ignore_subsequent: "Passes all subsequent arguments as script arguments."
             script_path:
-                header: "Script Path:"
+                header: "Script Path"
                 text: "The path to the AutoIt3 script file to be executed. This argument is required if not used with \"{--mode:option} {interactive:value}\". If the option \"{--mode:option} {line:value}\" is set, {script_path:placeholder} will be interpreted directly as executable AutoIt3 code."
             script_args:
-                header: "Script Arguments:"
+                header: "Script Arguments"
                 text: "The arguments to be passed to the AutoIt3 script or interactive shell."
-
-
-
             examples:
-                header: "Examples:"
-
+                header: "Examples"
+                version: "Show the interpreter's version."
+                run_script: "Run the script \"script.au3\" from the local directory \"~/scripts/\"."
+                view_script: "View the script \"script.au3\" fetched from \"http://example.com/script.au3\"."
+                run_line: "Run the AutoIt code \"{0}\e[0m\" directly."
 
 
 

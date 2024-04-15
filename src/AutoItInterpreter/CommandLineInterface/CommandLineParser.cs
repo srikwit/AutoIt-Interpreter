@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -469,13 +469,13 @@ public partial class CommandLineParser(LanguagePack language)
 
     private static string FormatHelpString(FormattableString fstring, VT100Stylesheet stylesheet) => FormatHelpString(fstring.Format, stylesheet, fstring.GetArguments());
 
-    private static string FormatHelpString(string fstring, VT100Stylesheet stylesheet, params object?[] args) => stylesheet.DefaultVT100Style + _regex_fmtstring.Replace(fstring, match =>
+    private static string FormatHelpString(string fstring, VT100Stylesheet stylesheet, object?[] args) => stylesheet.DefaultVT100Style + _regex_fmtstring.Replace(fstring, match =>
     {
         string content = match.Groups["content"].Value;
         string format = match.Groups["format"].Value;
         bool sindx = int.TryParse(content, out int index) && index < args.Length;
 
-        if (stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
+        if (format.Length > 0 && stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
             content = vt100 + (sindx ? args[index] : content) + stylesheet.DefaultVT100Style;
         else if (sindx)
             content = string.Format($"{{0{format}}}", args[index]);
@@ -553,23 +553,22 @@ public partial class CommandLineParser(LanguagePack language)
             ),
             new HelpSection(Language["command_line.help.script_path.header"], Language["command_line.help.script_path.text"]),
             new HelpSection(Language["command_line.help.script_args.header"], Language["command_line.help.script_args.text"]),
-
-            // TODO
             new HelpExamples(
                 Language["command_line.help.examples.header"],
                 null,
                 [
-                    ($"{executable:executable} --{OPTION_HELP:option}", Language["command_line.help.examples.help"]),
-                    ($"{executable:executable} --{OPTION_VERSION:option}", Language["command_line.help.examples.version"]),
-                    ($"{executable:executable} -m{'i':value}", Language["command_line.help.examples.interactive"]),
-                    ($"{executable:executable} -m{'n':value} <script_path>", Language["command_line.help.examples.normal"]),
-                    ($"{executable:executable} -m{'v':value} <script_path>", Language["command_line.help.examples.view"]),
-                    ($"{executable:executable} -m{'l':value} \"<code>\"", Language["command_line.help.examples.line"]),
-                    ($"{executable:executable} -m{'n':value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
-                    ($"{executable:executable} -m{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
-                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2", Language["command_line.help.examples.script_args"]),
-                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
-                    ($"{executable:executable} -m{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
+                    ($"{executable:executable} {"--" + OPTION_VERSION:option}", Language["command_line.help.examples.version"]),
+                    ($"{executable:executable} {"-m":option}{'i':value}", Language["command_line.help.examples.interactive"]),
+                    ($"{executable:executable} {"~/scripts/hello_world.au3":placeholder}", Language["command_line.help.examples.run_script"]),
+                    ($"{executable:executable} {"-m":option}{'v':value} {"http://example.com/script.au3":placeholder}", Language["command_line.help.examples.view_script"]),
+                    ($"{executable:executable} {"-m":option}{'l':value} \"ConsoleWrite(@AUTOIT_EXE)\"", Language["command_line.help.examples.run_line", ScriptVisualizer.VisualizeScriptAsVT100("ConsoleWrite(@AUTOIT_EXE)", false)]),
+
+#warning TODO : add more examples
+                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
                 ]
             ),
         ]);
@@ -584,7 +583,7 @@ public partial class CommandLineParser(LanguagePack language)
         VT100Stylesheet stylesheet = new(
             new()
             {
-                ["header"] = "\e[1;4m" + RGBAColor.NavajoWhite.ToVT100ForegroundString(),
+                ["header"] = "\e[1m\e[4m" + RGBAColor.NavajoWhite.ToVT100ForegroundString(),
                 ["executable"] = RGBAColor.LightSteelBlue.ToVT100ForegroundString(),
                 ["optional"] = RGBAColor.Gray.ToVT100ForegroundString(),
                 ["option"] = RGBAColor.Coral.ToVT100ForegroundString(),
@@ -594,7 +593,7 @@ public partial class CommandLineParser(LanguagePack language)
                 ["placeholder"] = RGBAColor.Plum.ToVT100ForegroundString(),
                 ["description"] = RGBAColor.White.ToVT100ForegroundString(),
             },
-            RGBAColor.White.ToVT100ForegroundString()
+            "\e[0m"
         );
         StringBuilder sb = new();
 
@@ -605,7 +604,7 @@ public partial class CommandLineParser(LanguagePack language)
             if (section.Header is string header)
                 sb.AppendLine(FormatHelpString($"{header:header}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet));
             else if (!string.IsNullOrEmpty(section.Text))
-                sb.AppendLine(FormatHelpString(section.Text, stylesheet));
+                sb.AppendLine(FormatHelpString(section.Text, stylesheet, []));
 
             if (section is HelpExamples examples)
                 foreach ((FormattableString example, string? descr) in examples.Examples)
@@ -614,7 +613,7 @@ public partial class CommandLineParser(LanguagePack language)
                             4,
                             FormatHelpString(example, stylesheet),
                             53,
-                            FormatHelpString(d, stylesheet),
+                            FormatHelpString(d, stylesheet, []),
                             console_width
                         ));
                     else
@@ -628,13 +627,13 @@ public partial class CommandLineParser(LanguagePack language)
                     if (option.Properties.HasFlag(OptionProperties.Unsafe))
                         descr = $"{{[{Language["command_line.help.options.unsafe"]}]:warning}} {descr}";
                     else if (option.Properties.HasFlag(OptionProperties.Obsolete))
-                        descr = $"{{[{Language["command_line.help.options.obsolete"]}]:error}} {descr}";
+                        descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
 
                     sb.Append(FormatOption(
                         4,
-                        FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:option}}").StringJoin(", "), stylesheet),
+                        FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:option}}").StringJoin(", "), stylesheet, []),
                         53,
-                        FormatHelpString(descr, stylesheet),
+                        FormatHelpString(descr, stylesheet, []),
                         console_width
                     ));
 
@@ -645,19 +644,20 @@ public partial class CommandLineParser(LanguagePack language)
                         if (value.Properties.HasFlag(ValueProperties.DefaultValue))
                             descr = $"{{[{Language["command_line.help.options.default"]}]:optional}} {descr}";
                         else if (value.Properties.HasFlag(ValueProperties.Obsolete))
-                            descr = $"{{[{Language["command_line.help.options.obsolete"]}]:error}} {descr}";
+                            descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
 
                         sb.Append(FormatOption(
                             8,
-                            FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:value}}").StringJoin(", "), stylesheet),
+                            FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:value}}").StringJoin(", "), stylesheet, []),
                             53,
-                            FormatHelpString(descr, stylesheet),
+                            FormatHelpString(descr, stylesheet, []),
                             console_width
                         ));
                     }
                 }
 
-            sb.AppendLine();
+            sb.AppendLine()
+              .AppendLine();
         }
 
         return sb.ToString();
