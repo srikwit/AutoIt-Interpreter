@@ -2,6 +2,7 @@ name: Bug report
 description: Report an issue, error, bug, or incorrect behavior.
 title: "[BUG] "
 labels: ["bug"]
+projects: ["Unknown6656/2"]
 assignees:
   - Unknown6656
 body:
