@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,19 +50,40 @@ public abstract record CommandLineOptions
 
     public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.Verbose;
 
-    public override string ToString() => $"--{CommandLineParser.OPTION_LANG} {LanguageCode} --{CommandLineParser.OPTION_CHECK_FOR_UPDATE} {UpdaterMode}";
+
+    private protected virtual IEnumerable<(string option, object? value)> Options
+    { 
+        get
+        {
+            List<(string, object?)> opts = [
+                (CommandLineParser.OPTION_LANG, LanguageCode),
+                (CommandLineParser.OPTION_CHECK_FOR_UPDATE, UpdaterMode),
+                (CommandLineParser.OPTION_VERBOSITY, VerbosityLevel),
+            ];
+
+            if (StrictAU3Mode)
+                opts.Add((CommandLineParser.OPTION_STRICT, null));
+
+            return opts;
+        }
+    }
+
+    public virtual string Serialize() => (from opt in Options
+                                          let vstr = opt.value as string ?? opt.value?.ToString() ?? ""
+                                          select $"--{opt.option}{(opt.value is null ? "" : vstr.Contains(' ') || vstr.Contains('"') ? $" \"{vstr.Replace("\"", "\\\"")}\"" : ' ' + vstr)}"
+                                          ).StringJoin(" ");
 
 
     public sealed record ShowHelp
         : CommandLineOptions
     {
-        public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_HELP}";
+        private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_HELP, null));
     }
 
     public sealed record ShowVersion
         : CommandLineOptions
     {
-        public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_VERSION}";
+        private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_VERSION, null));
     }
 
     public sealed record ViewMode
@@ -70,7 +91,9 @@ public abstract record CommandLineOptions
     {
         public required string FilePath { get; set; }
 
-        public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_MODE} {ExecutionMode.View} \"{FilePath}\"";
+        private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_MODE, ExecutionMode.View));
+
+        public override string Serialize() => $"{base.Serialize()} \"{FilePath}\"";
     }
 
     public abstract record RunMode
@@ -82,30 +105,33 @@ public abstract record CommandLineOptions
         public required bool DontLoadPlugins { get; set; }
         public required bool IgnoreErrors { get; set; }
 
-        public override string ToString()
+        private protected override IEnumerable<(string option, object? value)> Options
         {
-            StringBuilder sb = new(base.ToString());
+            get
+            {
+                IEnumerable<(string, object?)> opt = base.Options;
 
-            if (DontLoadPlugins)
-                sb.Append($" --{CommandLineParser.OPTION_NO_PLUGINS}");
+                if (DontLoadPlugins)
+                    opt = opt.Append((CommandLineParser.OPTION_NO_PLUGINS, null));
 
-            if (StrictAU3Mode)
-                sb.Append($" --{CommandLineParser.OPTION_STRICT}");
+                if (StrictAU3Mode)
+                    opt = opt.Append((CommandLineParser.OPTION_STRICT, null));
 
-            if (IgnoreErrors)
-                sb.Append($" --{CommandLineParser.OPTION_IGNORE_ERRORS}");
+                if (IgnoreErrors)
+                    opt = opt.Append((CommandLineParser.OPTION_IGNORE_ERRORS, null));
 
-            if (RedirectStdErrToStdOut)
-                sb.Append($" --{CommandLineParser.OPTION_REDIRECT_STDOUT}");
+                if (RedirectStdErrToStdOut)
+                    opt = opt.Append((CommandLineParser.OPTION_REDIRECT_STDOUT, null));
 
-            return sb.ToString();
+                return opt;
+            }
         }
 
 
         public sealed record InteractiveMode
             : RunMode
         {
-            public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_MODE} {ExecutionMode.Interactive}";
+            private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_MODE, ExecutionMode.Interactive));
         }
 
         public abstract record NonInteractiveMode
@@ -114,19 +140,20 @@ public abstract record CommandLineOptions
             public required bool DisableCOMConnector { get; set; } // windows only
             public required bool DisableGUIConnector { get; set; }
 
-            public override string ToString()
+            private protected override IEnumerable<(string option, object? value)> Options
             {
-                StringBuilder sb = new(base.ToString());
+                get
+                {
+                    IEnumerable<(string, object?)> opt = base.Options;
 
-                if (DisableCOMConnector)
-                    sb.Append($" --{CommandLineParser.OPTION_NO_COM}");
+                    if (DisableCOMConnector)
+                        opt = opt.Append((CommandLineParser.OPTION_NO_COM, null));
 
-                if (DisableGUIConnector)
-                    sb.Append($" --{CommandLineParser.OPTION_NO_GUI}");
+                    if (DisableGUIConnector)
+                        opt = opt.Append((CommandLineParser.OPTION_NO_GUI, null));
 
-                sb.Append($" --{CommandLineParser.OPTION_VERBOSITY} {VerbosityLevel}");
-
-                return sb.ToString();
+                    return opt;
+                }
             }
 
 
@@ -135,7 +162,9 @@ public abstract record CommandLineOptions
             {
                 public required string Code { get; set; }
 
-                public override string ToString() => $"{base.ToString()} --{CommandLineParser.OPTION_MODE} {ExecutionMode.Line} \"{Code}\"";
+                private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_MODE, ExecutionMode.Line));
+
+                public override string Serialize() => $"{base.Serialize()} \"{Code}\"";
             }
 
             public sealed record RunScript
@@ -143,14 +172,17 @@ public abstract record CommandLineOptions
             {
                 public required string FilePath { get; set; }
 
-                public override string ToString()
-                {
-                    StringBuilder sb = new(base.ToString());
+                private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_MODE, ExecutionMode.Normal));
 
-                    sb.Append($" --{CommandLineParser.OPTION_MODE} {ExecutionMode.Normal} \"{FilePath}\"");
+                public override string Serialize()
+                {
+                    StringBuilder sb = new();
+
+                    sb.Append(base.Serialize());
+                    sb.Append($" \"{FilePath}\"");
 
                     foreach (string arg in ScriptArguments)
-                        sb.Append($" \"{arg}\"");
+                        sb.Append($" \"{arg.Replace("\"", "\\\"")}\"");
 
                     return sb.ToString();
                 }

@@ -342,7 +342,7 @@ public static class MainProgram
         code = fatal ? -1 : 0;
 
         if (fatal || result?.VerbosityLevel > VerbosityLevel.Normal)
-#warning TODO : change to tidy?
+#warning TODO : change to quiet?
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($"Command line arguments ({RawCMDLineArguments.Length}):");
@@ -362,7 +362,7 @@ public static class MainProgram
         Task<bool> update_task = UpdateSoftwareTask();
 
         PrintBanner();
-        PrintDebugMessage(CommandLineOptions.ToString());
+        PrintDebugMessage($"{CommandLineOptions.Serialize()}\n{CommandLineOptions}");
         PrintfDebugMessage("debug.langpack_found", LanguageLoader.LoadedLanguageCodes.Length);
         PrintfDebugMessage("debug.loaded_langpack", lang);
         PrintfDebugMessage("debug.interpreter_loading");
