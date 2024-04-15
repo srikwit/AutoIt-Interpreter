@@ -547,8 +547,11 @@ public partial class CommandLineParser(LanguagePack language)
                     new(["{-o:option}"], Language["command_line.help.options.syntax.short_no_value"]),
                     new(["{-o:option}{v:value}"], Language["command_line.help.options.syntax.short_value"]),
                     new(["{-o:option}{value:value}"], Language["command_line.help.options.syntax.short_full_value"]),
+                    new(["{-o:option}:{v:value}"], Language["command_line.help.options.syntax.short_value"]),
+                    new(["{-o:option}:{value:value}"], Language["command_line.help.options.syntax.short_full_value"]),
                     new(["{--option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
                     new(["{--option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
+                    new(["{--option:option}={value:value}"], Language["command_line.help.options.syntax.long_value"]),
                     new(["{/option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
                     new(["{/option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
                 ]
@@ -559,13 +562,13 @@ public partial class CommandLineParser(LanguagePack language)
                 [
                     new(["-h", "-?", "--help"], Language["command_line.help.options.help"]),
                     new(["-V", "--version"], Language["command_line.help.options.version"]),
-                    new(["{-m:option}{mode:value}", "{--mode:option} {mode:value}"], Language["command_line.help.options.mode.header"], default, [
+                    new(["{-m:option}{mode:placeholder}", "{--mode:option} {mode:placeholder}"], Language["command_line.help.options.mode.header"], default, [
                         new(["n", "normal"], Language["command_line.help.options.mode.normal"], ValueProperties.DefaultValue),
                         new(["v", "view"], Language["command_line.help.options.mode.view"]),
                         new(["l", "line"], Language["command_line.help.options.mode.line"]),
                         new(["i", "interactive"], Language["command_line.help.options.mode.interactive"]),
                     ]),
-                    new(["{-v:option}{level:value}", "{--verbosity:option} {level:value}"], Language["command_line.help.options.verbosity.header"], default, [
+                    new(["{-v:option}{level:placeholder}", "{--verbosity:option} {level:placeholder}"], Language["command_line.help.options.verbosity.header"], default, [
                         new(["0", "q", "quiet"], Language["command_line.help.options.verbosity.quiet"], ValueProperties.DefaultValue),
                         new(["1", "n", "normal"], Language["command_line.help.options.verbosity.normal"]),
                         new(["2", "t", "telemetry"], Language["command_line.help.options.verbosity.telemetry"]),
@@ -576,12 +579,12 @@ public partial class CommandLineParser(LanguagePack language)
                     new(["-G", "--no-gui"], Language["command_line.help.options.no_gui"]),
                     new(["-s", "--strict"], Language["command_line.help.options.strict"]),
                     new(["-e", "--ignore-errors"], Language["command_line.help.options.ignore_errors"], OptionProperties.Unsafe),
-                    new(["{-u:option}{mode:value}", "{--update:option} {mode:value}"], Language["command_line.help.options.update.header"], default, [
+                    new(["{-u:option}{mode:placeholder}", "{--update:option} {mode:placeholder}"], Language["command_line.help.options.update.header"], default, [
                         new(["r", "release"], Language["command_line.help.options.update.release"], ValueProperties.DefaultValue),
                         new(["b", "beta"], Language["command_line.help.options.update.beta"]),
                         new(["n", "none"], Language["command_line.help.options.update.none"]),
                     ]),
-                    new(["{-l:option}{lang_code:value}", "{--lang:option} {lang_code:value}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
+                    new(["{-l:option}{lang_code:placeholder}", "{--lang:option} {lang_code:placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
                     new(["--ErrorStdOut"], Language["command_line.help.options.redirect_stderr"]),
                     new(["--"], Language["command_line.help.options.ignore_subsequent"]),
                     new(["-t", "--telemetry"], Language["command_line.help.same_as", "{--verbosity:option} {telemetry:value}"], OptionProperties.Obsolete),
@@ -605,9 +608,6 @@ public partial class CommandLineParser(LanguagePack language)
 #warning TODO : add more examples
                     //($"{executable:executable} {"-m":option}{'n':value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
                     //($"{executable:executable} {"-m":option}{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
-                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2", Language["command_line.help.examples.script_args"]),
-                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
-                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> /arg1 /arg2 -- -arg3 -arg4", Language["command_line.help.examples.script_args"]),
                 ]
             ),
         ]);
