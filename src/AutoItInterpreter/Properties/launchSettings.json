@@ -2,7 +2,8 @@
     "profiles": {
         "AutoItInterpreter": {
             "commandName": "Project",
-            "commandLineArgs": "-? -mi \"ConsoleWrite(@OSVERSION)\" -vv",
+            "commandLineArgs": "-ml \"ConsoleWrite(@OSVERSION)\" -vn",
+            //"commandLineArgs": "../test/hello-world -vv",
             "nativeDebugging": false
         }
     }

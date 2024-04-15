@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -91,7 +91,6 @@ public static class MainProgram
 
         using Task printer_task = Task.Run(PrinterTask);
         using Task telemetry_task = Task.Run(Telemetry.StartPerformanceMonitorAsync);
-        bool print_telemetry = false;
         int exitcode = 0;
 
         Telemetry.Measure(TelemetryCategory.ProgramRuntime, delegate
@@ -162,7 +161,7 @@ public static class MainProgram
         Telemetry.StopPerformanceMonitor();
         telemetry_task.Wait();
 
-        if (print_telemetry)
+        if (CommandLineOptions is CommandLineOptions.RunMode { VerbosityLevel: > VerbosityLevel.Quiet })
             PrintReturnCodeAndTelemetry(exitcode, Telemetry);
 
         _isrunning = false;

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,10 +17,10 @@ namespace Unknown6656.AutoIt3.CLI;
 
 public enum VerbosityLevel
 {
-    Quiet,
-    Normal,
-    Telemetry,
-    Verbose,
+    Quiet = 0,
+    Normal = 1,
+    Telemetry = 2,
+    Verbose = 3,
 }
 
 /// <summary>
@@ -229,7 +229,7 @@ public partial class CommandLineParser(LanguagePack language)
         'u' or 'U' => OPTION_CHECK_FOR_UPDATE,
         'l' or 'L' => OPTION_LANG,
         '?' => OPTION_HELP,
-        'v' => OPTION_VERBOSE,
+        'v' => OPTION_VERBOSITY,
         'V' => OPTION_VERSION,
         _ => null
     };
