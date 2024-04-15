@@ -1122,11 +1122,12 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
         string[] version = hash.ToDrunkBishop().SplitIntoLines();
         LanguagePack? lang = LanguageLoader.CurrentLanguage;
 
-        version[2] +=  "   AUTOIT3 INTERPRETER";
-        version[3] += $"     {lang?["banner.written_by", __module__.Author, __module__.Year]}";
-        version[5] += $"   \e[4m{__module__.RepositoryURL}/\e[24m";
-        version[7] += $"   {lang?["banner.version"]} {__module__.InterpreterVersion}, {__module__.GitHash}";
-        version[8] += $"   {hash.ToHexString()}";
+        version[1] +=  "   AUTOIT3 INTERPRETER";
+        version[2] += $"     {lang?["banner.written_by", __module__.Author, __module__.Year]}";
+        version[4] += $"   \e[4m{__module__.RepositoryURL}/\e[24m";
+        version[6] += $"   {lang?["banner.version"]} {__module__.InterpreterVersion}, {__module__.GitHash}";
+        version[7] += $"   {hash.ToHexString()}";
+        version[9] += $"   {lang?["banner.drunk_bishop"]}";
 
 
         _print_queue.Enqueue(() => Telemetry.Measure(TelemetryCategory.Printing, delegate

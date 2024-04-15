@@ -8,6 +8,7 @@ strings:
     banner:
         written_by: "Written by {0}, {1}"
         version: "Version"
+        drunk_bishop: "Use this image to compare whether two AutoIt versions are equal."
     general:
         line: "line"
         lines: "lines"
@@ -53,7 +54,7 @@ strings:
                 obsolete: "OBSOLETE"
                 default: "DEFAULT"
                 syntax:
-                    text: "Please note that all options are parsable using the following syntaxes:"
+                    text: "Please note that all options are parsable using one of the following syntaxes:"
                     short_no_value: "Sets the option abbreviated with {o:option} to a value of \"{true:value}\"."
                     short_value: "Sets the option abbreviated with {o:option} to \"{v:value}\" (or pre-defined values starting with \"{v:value}\")."
                     short_full_value: "Sets the option abbreviated with {o:option} to the given value \"{value:value}\"."
