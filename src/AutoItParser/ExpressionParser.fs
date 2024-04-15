@@ -165,10 +165,10 @@ type ExpressionParser(mode : ParserMode) =
         let t_literal_null          = x.CreateTerminalF @"null"                                  (fun _ -> Null)
         let t_literal_default       = x.CreateTerminalF @"default"                               (fun _ -> Default)
      // let t_literal_empty         = x.CreateTerminalF @"empty"                                 (fun _ -> String "")
-        let t_hex                   = x.CreateTerminalF @"(\+|-)?(0x[\da-fA-F_]+|[\da-fA-F_]+h)" (parse_num "0x" (fun s -> Int64.Parse(s.Replace("_", "").TrimEnd 'h', NumberStyles.HexNumber)))
-        let t_bin                   = x.CreateTerminalF @"(\+|-)?0b[01_]+"                       (parse_num "0b" (fun s -> Convert.ToInt64(s.Replace("_", ""), 2)))
-        let t_oct                   = x.CreateTerminalF @"(\+|-)?0o[0-7_]+"                      (parse_num "0o" (fun s -> Convert.ToInt64(s.Replace("_", ""), 8)))
-        let t_dec                   = x.CreateTerminalF @"(\+|-)?\d+(\.\d+)?(e(\+|-)?\d+)?"      (fun s -> match Double.TryParse s with
+        let t_hex                   = x.CreateTerminalF @"(0x[\da-fA-F_]+|[\da-fA-F_]+h)"        (parse_num "0x" (fun s -> Int64.Parse(s.Replace("_", "").TrimEnd 'h', NumberStyles.HexNumber)))
+        let t_bin                   = x.CreateTerminalF @"0b[01_]+"                              (parse_num "0b" (fun s -> Convert.ToInt64(s.Replace("_", ""), 2)))
+        let t_oct                   = x.CreateTerminalF @"0o[0-7_]+"                             (parse_num "0o" (fun s -> Convert.ToInt64(s.Replace("_", ""), 8)))
+        let t_dec                   = x.CreateTerminalF @"\d+(\.\d+)?(e(\+|-)?\d+)?"             (fun s -> match Double.TryParse s with
                                                                                                            | (true, d) -> d
                                                                                                            | _ -> Double.Parse(s, NumberStyles.Float))
         let t_variable              = x.CreateTerminalF @"$[^\W\d]\w*"                           (fun s -> VARIABLE(s.Substring 1))
