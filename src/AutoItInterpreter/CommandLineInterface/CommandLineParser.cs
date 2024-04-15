@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -594,13 +594,13 @@ public partial class CommandLineParser(LanguagePack language)
                 [
                     new(["-h", "-?", "--help"], Language["command_line.help.options.help"]),
                     new(["-V", "--version"], Language["command_line.help.options.version"]),
-                    new(["{-m:option}{mode:placeholder}", "{--mode:option} {mode:placeholder}"], Language["command_line.help.options.mode.header"], default, [
+                    new(["{-m:option}:{mode:placeholder}", "{--mode:option} {mode:placeholder}"], Language["command_line.help.options.mode.header"], default, [
                         new(["n", "normal"], Language["command_line.help.options.mode.normal"], ValueProperties.DefaultValue),
                         new(["v", "view"], Language["command_line.help.options.mode.view"]),
                         new(["l", "line"], Language["command_line.help.options.mode.line"]),
                         new(["i", "interactive"], Language["command_line.help.options.mode.interactive"]),
                     ]),
-                    new(["{-v:option}{level:placeholder}", "{--verbosity:option} {level:placeholder}"], Language["command_line.help.options.verbosity.header"], default, [
+                    new(["{-v:option}:{level:placeholder}", "{--verbosity:option} {level:placeholder}"], Language["command_line.help.options.verbosity.header"], default, [
                         new(["0", "q", "quiet"], Language["command_line.help.options.verbosity.quiet"], ValueProperties.DefaultValue),
                         new(["1", "n", "normal"], Language["command_line.help.options.verbosity.normal"]),
                         new(["2", "t", "telemetry"], Language["command_line.help.options.verbosity.telemetry"]),
@@ -611,12 +611,12 @@ public partial class CommandLineParser(LanguagePack language)
                     new(["-G", "--no-gui"], Language["command_line.help.options.no_gui"]),
                     new(["-s", "--strict"], Language["command_line.help.options.strict"]),
                     new(["-e", "--ignore-errors"], Language["command_line.help.options.ignore_errors"], OptionProperties.Unsafe),
-                    new(["{-u:option}{mode:placeholder}", "{--update:option} {mode:placeholder}"], Language["command_line.help.options.update.header"], default, [
+                    new(["{-u:option}:{mode:placeholder}", "{--update:option} {mode:placeholder}"], Language["command_line.help.options.update.header"], default, [
                         new(["r", "release"], Language["command_line.help.options.update.release"], ValueProperties.DefaultValue),
                         new(["b", "beta"], Language["command_line.help.options.update.beta"]),
                         new(["n", "none"], Language["command_line.help.options.update.none"]),
                     ]),
-                    new(["{-l:option}{lang_code:placeholder}", "{--lang:option} {lang_code:placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
+                    new(["{-l:option}:{lang_code:placeholder}", "{--lang:option} {lang_code:placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
                     new(["--ErrorStdOut"], Language["command_line.help.options.redirect_stderr"]),
                     new(["--"], Language["command_line.help.options.ignore_subsequent"]),
                     new(["-t", "--telemetry"], Language["command_line.help.same_as", "{--verbosity:option} {telemetry:value}"], OptionProperties.Obsolete),
@@ -642,6 +642,35 @@ public partial class CommandLineParser(LanguagePack language)
                     //($"{executable:executable} {"-m":option}{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
                 ]
             ),
+
+//  Run the interpreter quietly (only print the script's output):
+//      autoit3 ~/Documents/my_script.au3
+//      autoit3 C:\User\Public\Script              (you can also omit the file extension)
+
+//  Run the interpreter in telemetry/full debugging mode:
+//      autoit3 -t ~/Documents/my_script.au3
+//      autoit3 -v ~/Documents/my_script.au3
+
+//  Run a script which is not on the local machine:
+//      autoit3 ""\\192.168.0.1\Public Documents\My Script.au3""
+//      autoit3 https://example.com/my-script.au3
+//      autoit3 ftp://username:password@example.com/path/to/script.au3
+
+//  Run the interpreter in interactive mode:
+//      autoit3 -m interactive
+
+//  Run the interpreter in view-only mode:
+//      autoit3 -m view ~/Documents/my_script.au3
+
+//  Use an other display language than English for the interpreter:
+//      autoit3 -l fr C:\User\Public\Script.au3
+
+//  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
+
+//-------------------------------------------------------------------------------
+
+//COMMAND LINE OPTIONS:")]
+
         ]);
     }
 
@@ -666,6 +695,8 @@ public partial class CommandLineParser(LanguagePack language)
             },
             "\e[0m"
         );
+        const int INDENT = 4;
+        const int OPTION_WIDTH = 45;
         StringBuilder sb = new();
 
         sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:header}\n", stylesheet));
@@ -673,7 +704,7 @@ public partial class CommandLineParser(LanguagePack language)
         foreach (HelpSection section in help_page.Sections)
         {
             if (section.Header is string header)
-                sb.AppendLine(FormatHelpString($"{header:header}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet));
+                sb.AppendLine(FormatHelpString($"{{{header}:header}}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet, []));
             else if (!string.IsNullOrEmpty(section.Text))
                 sb.AppendLine(FormatHelpString(section.Text, stylesheet, []));
 
@@ -681,9 +712,9 @@ public partial class CommandLineParser(LanguagePack language)
                 foreach ((FormattableString example, string? descr) in examples.Examples)
                     if (descr is { } d)
                         sb.Append(FormatOption(
-                            4,
+                            INDENT,
                             FormatHelpString(example, stylesheet),
-                            53,
+                            OPTION_WIDTH,
                             FormatHelpString(d, stylesheet, []),
                             console_width
                         ));
@@ -701,9 +732,9 @@ public partial class CommandLineParser(LanguagePack language)
                         descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
 
                     sb.Append(FormatOption(
-                        4,
+                        INDENT,
                         FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:option}}").StringJoin(", "), stylesheet, []),
-                        53,
+                        OPTION_WIDTH,
                         FormatHelpString(descr, stylesheet, []),
                         console_width
                     ));
@@ -718,9 +749,9 @@ public partial class CommandLineParser(LanguagePack language)
                             descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
 
                         sb.Append(FormatOption(
-                            8,
+                            2 * INDENT,
                             FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:value}}").StringJoin(", "), stylesheet, []),
-                            53,
+                            OPTION_WIDTH,
                             FormatHelpString(descr, stylesheet, []),
                             console_width
                         ));

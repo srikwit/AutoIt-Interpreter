@@ -85,7 +85,7 @@ strings:
                     release: "Only fetch newer versions of the AutoIt interpreter if they're ready for general use."
                     beta: "Releases marked as \"beta\" or \"pre-release\" will be included in the search for the newest update. These versions are probable to include some bugs."
                     none: "Updates will not be fetched, even if newer software version are available."
-                language: "The CLI language code to be used by the compiler shell. The default value is \"{en:value}\" for the English language pack. Language packs are fetched from the following directory: \"{0}\""
+                language: "The CLI language code to be used by the compiler shell. The default value is \"{en:value}\" for the English language pack.\nLanguage packs are fetched from the following directory: \"{0}\""
                 redirect_stderr: "Redirects the standard error stream to the standard output stream."
                 ignore_subsequent: "Passes all subsequent arguments as script arguments."
             script_path:

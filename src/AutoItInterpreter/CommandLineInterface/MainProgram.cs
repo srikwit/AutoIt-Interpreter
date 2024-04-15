@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,78 +24,8 @@ using Unknown6656.Common;
 using Unknown6656.IO;
 
 using OS = Unknown6656.AutoIt3.Runtime.Native.OS;
-using static Microsoft.FSharp.Core.ByRefKinds;
 
 namespace Unknown6656.AutoIt3.CLI;
-
-
-
-//[assembly:__AssemblyUsage(@"
-//  Run the interpreter quietly (only print the script's output):
-//      autoit3 ~/Documents/my_script.au3
-//      autoit3 C:\User\Public\Script              (you can also omit the file extension)
-
-//  Run the interpreter in telemetry/full debugging mode:
-//      autoit3 -t ~/Documents/my_script.au3
-//      autoit3 -v ~/Documents/my_script.au3
-
-//  Run a script which is not on the local machine:
-//      autoit3 ""\\192.168.0.1\Public Documents\My Script.au3""
-//      autoit3 https://example.com/my-script.au3
-//      autoit3 ftp://username:password@example.com/path/to/script.au3
-
-//  Run the interpreter in interactive mode:
-//      autoit3 -m interactive
-
-//  Run the interpreter in view-only mode:
-//      autoit3 -m view ~/Documents/my_script.au3
-
-//  Use an other display language than English for the interpreter:
-//      autoit3 -l fr C:\User\Public\Script.au3
-
-//  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
-
-//-------------------------------------------------------------------------------
-
-//COMMAND LINE OPTIONS:")]
-
-
-
-//public sealed class __CommandLineOptions
-//{
-//    [Option('m', "mode", Default = ExecutionMode.normal, HelpText = "The program's execution mode. Possible values are 'normal' (n), 'interactive' (i), 'view' (v), and 'tidy' (t). The default value is 'normal'. This will run the specified script. The value 'view' indicates that the interpreter shall only display a syntax highlighted version of the script. The value 'interactive' starts the interactive AutoIt shell. The value 'tidy' formats the speicified script file.")]
-//    public ExecutionMode ProgramExecutionMode { get; set; } = ExecutionMode.normal;
-
-//    [Option('N', "no-plugins", Default = false, HelpText = "Prevents the loading of interpreter plugins/extensions.")]
-//    public bool DontLoadPlugins { set; get; } = false;
-
-//    [Option('s', "strict", Default = false, HelpText = "Indicates that only strict Au3-features and -syntaxes should be be supported (Extensions to the AutoIt language will be interpreted as errors).")]
-//    public bool StrictMode { set; get; } = false;
-
-//    [Option('e', "ignore-errors", Default = false, HelpText = "Ignores syntax and evaluation errors during parsing (unsafe!). This can lead to undefined and non-deterministic behaviour.")]
-//    public bool IgnoreErrors { set; get; } = false;
-
-//    [Option('t', "telemetry", Default = false, HelpText = "Prints the interpreter telemetry. A verbosity level of 'n' or 'v' will automatically set this flag.  NOTE: All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might suggest. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server.")]
-//    public bool PrintTelemetry { set; get; } = false;
-
-//    [Option('v', "verbose", Default = false, HelpText = "Indicates that the interpreter should also print debug messages.")]
-//    public bool Verbose { set; get; } = false;
-
-//    [Option('u', "check-for-update", Default = UpdaterMode.release, HelpText = "Specifies how the interpreter should check for software updates. Possible values are 'release' (default), 'beta', and 'none'. 'none' indicates that no updates shall be downloaded; 'beta' indicates that beta-releases should be included in the search for the newest update. Updates will be downloaded from the GitHub repository (\e[4m" + __module__.RepositoryURL + "/releases\e[24m).")]
-//    public UpdaterMode UpdaterMode { set; get; } = UpdaterMode.release;
-
-//    [Option('l', "lang", Default = "en", HelpText = "The CLI language code to be used by the compiler shell. The default value is 'en' for the English language.")]
-//    public string Language { set; get; } = "en";
-
-//    [Value(0, HelpText = "The AutoIt-3 script path. This can be a local file or a web resource (HTTP/HTTPS/SMB/FTP/...).")]
-//    public string? FilePath { set; get; } = null;
-//}
-
-
-
-
-
-
 
 
 /// <summary>
