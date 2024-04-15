@@ -1,7 +1,8 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System;
 
 using Unknown6656.AutoIt3.Runtime.Native;
@@ -205,6 +206,7 @@ public partial class CommandLineParser(LanguagePack language)
     {
         RawCommandLineOptions raw = new();
         string? current_option = null;
+        string? current_prefix = null;
         bool ignore_dash = false;
         int index = 0;
 
@@ -304,8 +306,25 @@ public partial class CommandLineParser(LanguagePack language)
 
                 index += string.IsNullOrEmpty(value) ? 0 : 1;
             }
+            else if (File.Exists(option))
+            {
+                raw.script_path = option;
+                current_prefix = null;
+                current_option = null;
+            }
             else
-                unknown_option(option, true);
+            {
+                string path = current_prefix + option;
+
+                if (File.Exists(path))
+                {
+                    raw.script_path = path;
+                    current_prefix = null;
+                    current_option = null;
+                }
+                else
+                    unknown_option(option, true);
+            }
         }
 
 
@@ -313,23 +332,43 @@ public partial class CommandLineParser(LanguagePack language)
         {
             string argument = argv[index];
 
-            if (argument == "--")
+            if (!ignore_dash && argument == "--")
                 ignore_dash = true;
             else if (current_option is { })
             {
                 process_option(current_option, argument);
 
+                current_prefix = null;
                 current_option = null;
             }
             else if (!ignore_dash && argument is ['-', '-', .. string opt1])
-                current_option = opt1;
+            {
+                current_prefix = "--";
+
+                if (opt1.IndexOf('=') is int i and > 0)
+                {
+                    current_option = opt1[..i];
+
+                    process_option(current_option, opt1[(i + 1)..]);
+                }
+                else
+                    current_option = opt1;
+            }
             else if (!ignore_dash && argument is ['/', .. string opt2])
+            {
+                current_prefix = "/";
                 current_option = opt2;
+            }
             else if (!ignore_dash && argument is ['-', char short_option, .. string value])
+            {
+                if (value.StartsWith(':'))
+                    value = value[1..];
+
                 if (TryMapShortOption(short_option) is string option)
                     process_option(option, value);
                 else
                     unknown_option("-" + short_option, true);
+            }
             else if (raw.script_path is null)
                 raw.script_path = argument;
             else
