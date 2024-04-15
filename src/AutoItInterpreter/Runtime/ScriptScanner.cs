@@ -169,9 +169,9 @@ public sealed class ScriptScanner
 
                 AU3Function curr_func = script.GetOrCreateAU3Function(ScriptFunction.GLOBAL_FUNC, null);
                 List<(string line, SourceLocation loc)> lines = DataStream.FromString(content)
-                                                                    .ToLines()
-                                                                    .Select((l, i) => (l, new SourceLocation(file.FullName, i)))
-                                                                    .ToList();
+                                                                          .ToLines()
+                                                                          .Select((l, i) => (l, new SourceLocation(file.FullName, i)))
+                                                                          .ToList();
                 int comment_lvl = 0;
                 Match m;
 

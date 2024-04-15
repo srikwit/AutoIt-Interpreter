@@ -427,7 +427,7 @@ public static class MainProgram
 
             if (resolved.Is(out ScannedScript? script))
             {
-                FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, interpreter.Run);
+                FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, () => interpreter.Run(script, InterpreterRunContext.Regular));
 
                 result.IsFatal(out error);
 
