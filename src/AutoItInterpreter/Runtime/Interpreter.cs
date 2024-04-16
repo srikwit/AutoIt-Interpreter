@@ -19,6 +19,7 @@ namespace Unknown6656.AutoIt3.Runtime;
 
 using static AST;
 
+
 /// <summary>
 /// Represents the core management logic of the AutoIt interpreter.
 /// <br/>

@@ -72,9 +72,6 @@ public static class MainProgram
     public static bool PausePrinter { get; set; }
 
 
-    // TODO : clean up 'Start'-method
-
-
     /// <summary>
     /// The main entry point for this application.
     /// </summary>
@@ -270,17 +267,21 @@ public static class MainProgram
 
         code = fatal ? -1 : 0;
 
-        if (fatal || result?.VerbosityLevel > VerbosityLevel.Normal)
-#warning TODO : change to quiet?
+        if (fatal || result is null or { VerbosityLevel: > VerbosityLevel.Normal })
         {
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"Command line arguments ({RawCMDLineArguments.Length}):");
-            Console.WriteLine($"    {RawCMDLineArguments.Select(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg).StringJoin(" ")}");
+            if (RawCMDLineArguments.Length > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine($"Command line arguments ({RawCMDLineArguments.Length}):");
+                Console.WriteLine($"    {RawCMDLineArguments.Select(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg).StringJoin(" ")}");
+            }
+
+            Console.WriteLine();
 
             foreach (CommandLineParsingError err in errors)
             {
                 Console.ForegroundColor = err.Fatal ? ConsoleColor.Red : ConsoleColor.Yellow;
-                Console.WriteLine($"    {(err.ArgumentIndex < 0 ? "         " : $"Arg. #{err.ArgumentIndex,2}:")} {err.Message}");
+                Console.WriteLine($"    {(err.ArgumentIndex < 0 ? "        " : $"Arg. {err.ArgumentIndex + ":",3}")} {err.Message}");
             }
         }
     }
@@ -579,7 +580,7 @@ ______________________.,-#%&$@#&@%#&#~,.___________________________________");
 
         ConsoleExtensions.RGBForegroundColor = COLOR_ERROR;
 
-        const string report_url = $"\e[4m{__module__.RepositoryURL}/issues/new?template=bug_report.md\e[24m";
+        const string report_url = $"\e[4m{__module__.RepositoryURL}/issues/new?assignees=Unknown6656&labels=bug&projects=Unknown6656%2F2&template=bug_report.yml&title=%5BBUG%5D+\e[24m";
         string please_report = LanguageLoader.CurrentLanguage?["error.please_report_bug", report_url] ?? $"If you believe that this is a bug, please report it to {report_url}.";
 
         Console.WriteLine(message.TrimEnd());

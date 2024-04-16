@@ -642,6 +642,7 @@ public partial class CommandLineParser(LanguagePack language)
                     //($"{executable:executable} {"-m":option}{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
                 ]
             ),
+            new HelpSection(null, Language["command_line.help.outro", __module__.RepositoryURL]),
 
 //  Run the interpreter quietly (only print the script's output):
 //      autoit3 ~/Documents/my_script.au3
@@ -664,12 +665,6 @@ public partial class CommandLineParser(LanguagePack language)
 
 //  Use an other display language than English for the interpreter:
 //      autoit3 -l fr C:\User\Public\Script.au3
-
-//  Visit " + "\e[4m" + __module__.RepositoryURL + "/wiki/Usage/\e[24m" + @" for more information.
-
-//-------------------------------------------------------------------------------
-
-//COMMAND LINE OPTIONS:")]
 
         ]);
     }
@@ -762,7 +757,7 @@ public partial class CommandLineParser(LanguagePack language)
               .AppendLine();
         }
 
-        return sb.ToString();
+        return sb.ToString().TrimEnd();
     }
 
 

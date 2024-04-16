@@ -100,7 +100,7 @@ strings:
                 run_script: "Run the script \"script.au3\" from the local directory \"~/scripts/\"."
                 view_script: "View the script \"script.au3\" fetched from \"http://example.com/script.au3\"."
                 run_line: "Run the AutoIt code \"{0}\e[0m\" directly."
-
+            outro: "For more information, please refer to the AutoIt-Interpreter's wiki page at \e[4m{0}/wiki/Usage\e[24m."
 
 
         error:
