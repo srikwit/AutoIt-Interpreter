@@ -370,9 +370,7 @@ public sealed class AU3CallFrame
         if (len < argc)
             Array.Resize(ref args, argc);
 
-        FunctionReturnValue? return_value = null;
-
-        if (!(CurrentFunction.IsCached && Interpreter.FunctionCache.TryFetch(CurrentFunction, args, out return_value)))
+        if (!(CurrentFunction.IsCached && Interpreter.FunctionCache.TryFetch(CurrentFunction, args, out FunctionReturnValue? return_value)))
         {
             for (int i = 0; i < argc; ++i)
             {
@@ -573,7 +571,7 @@ public sealed class AU3CallFrame
 
         LastStatementValue = result ?? Variant.Null;
 
-        if (Interpreter.CommandLineOptions is CommandLineOptions.RunMode { IgnoreErrors: true } && result is { } && result.IsFatal(out InterpreterError? error))
+        if (Interpreter.CommandLineOptions is CommandLineOptions.RunMode { IgnoreErrors: true } && (result?.IsFatal(out InterpreterError? error) ?? false))
         {
             MainProgram.PrintWarning(CurrentLocation, error.Message);
 

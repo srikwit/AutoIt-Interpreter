@@ -354,20 +354,24 @@ public static class MainProgram
             }
 
             InterpreterError? error = null;
+            int exitcode = 0;
 
             if (resolved.Is(out ScannedScript? script))
             {
                 FunctionReturnValue result = Telemetry.Measure(TelemetryCategory.InterpreterRuntime, () => interpreter.Run(script, InterpreterRunContext.Regular));
 
-                result.IsFatal(out error);
+                result.IsError(out exitcode);
 
-                return result.IsError(out int exitcode) ? exitcode : 0;
+                if (result.IsFatal(out error))
+                    exitcode = unchecked((int)0xdeadbeef);
             }
             else
                 error = resolved.As<InterpreterError>();
 
             if (error is InterpreterError err)
                 PrintError($"{lang["error.error_in", err.Location ?? SourceLocation.Unknown]}:\n    {err.Message}");
+
+            return exitcode;
         }
 
         return -1;
