@@ -23,31 +23,32 @@ using static AST;
 /// <summary>
 /// Represents an AutoIt3 script scanning and caching module.
 /// </summary>
-public sealed class ScriptScanner
+public sealed partial class ScriptScanner
 {
     private static readonly string[] AUTOIT_FILE_EXTENSIONS = ["", ".au3", ".au2", ".au", ".aupp", ".au++"];
 
     private const RegexOptions REGEX_OPTIONS = RegexOptions.IgnoreCase | RegexOptions.Compiled;
-    private const string REGEX_FUNC_MODIFIERS = /*lang=regex*/@"((\s+|\b)(?<modifiers>volatile(\s+cached)?|cached(\s+volatile)?)(\s+|\b))?";
-    private static readonly Regex REGEX_COMMENT = new(@"\;[^\""\']*$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_COMMENT_AFTER_STRING1 = new(@"^([^\""\;]*\""[^\""]*\""[^\""\;]*)*(?<cmt>\;).*$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_COMMENT_AFTER_STRING2 = new(@"^([^'\;]*'[^']*'[^'\;]*)*(?<cmt>\;).*$", REGEX_OPTIONS);
-    internal static readonly Regex REGEX_CS = new(@"^#(comments\-start|cs)(\b|$)", REGEX_OPTIONS);
-    internal static readonly Regex REGEX_CE = new(@"^#(comments\-end|ce)(\b|$)", REGEX_OPTIONS);
-    private static readonly Regex REGEX_REGION = new(@"^#(end-?)?region\b", REGEX_OPTIONS);
-    private static readonly Regex REGEX_PRAGMA = new(@"^#pragma\s+(?<option>[a-z_]\w+)\b\s*(\((?<params>.*)\))?\s*", REGEX_OPTIONS);
-    private static readonly Regex REGEX_LINECONT = new(@"(\s|^)_$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_1L_IF = new(@"^\s*(?<if>if\b\s*.+\s*\bthen)\b\s*(?<then>.+)$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_1L_FUNC = new($@"^(?<decl>{REGEX_FUNC_MODIFIERS}\s*\bfunc\b\s*([a-z_]\w*)\s*\(.*\))\s*->\s*(?<body>.+)$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_FUNC_ASSG = new($@"^(?<target>.+)=\s*(?<func>{REGEX_FUNC_MODIFIERS}\s*\bfunc)\s*(?<args>\(.*\))$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_FUNC = new($@"^{REGEX_FUNC_MODIFIERS}\s*\bfunc\s+(?<name>[a-z_]\w*)\s*\((?<args>.*)\)$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_ENDFUNC = new(@"^endfunc$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_LABEL = new(@"^(?<name>[a-z_]\w*)\s*:$", REGEX_OPTIONS);
-    private static readonly Regex REGEX_INCLUDEONCE = new(@"^#include-once(\b|$)", REGEX_OPTIONS);
-    private static readonly Regex REGEX_AUSTARTREGISTER = new(@"^#(onautoitstartregister\s+""(?<func>[^""]+)"")", REGEX_OPTIONS);
-    private static readonly Regex REGEX_AUEXITREGISTER = new(@"^#(onautoitexitregister\s+""(?<func>[^""]+)"")", REGEX_OPTIONS);
-    private static readonly Regex REGEX_REQADMIN = new(@"^#requireadmin\b", REGEX_OPTIONS);
-    private static readonly Regex REGEX_NOTRYICON = new(@"^#notrayicon\b", REGEX_OPTIONS);
+
+
+    private static readonly Regex REGEX_COMMENT = GenRegex_COMMENT();
+    private static readonly Regex REGEX_COMMENT_AFTER_STRING1 = GenRegex_COMMENT_AFTER_STRING1();
+    private static readonly Regex REGEX_COMMENT_AFTER_STRING2 = GenRegex_COMMENT_AFTER_STRING2();
+    internal static readonly Regex REGEX_CS = GenRegex_CS();
+    internal static readonly Regex REGEX_CE = GenRegex_CE();
+    private static readonly Regex REGEX_REGION = GenRegex_REGION();
+    private static readonly Regex REGEX_PRAGMA = GenRegex_PRAGMA();
+    private static readonly Regex REGEX_LINECONT = GenRegex_LINECONT();
+    private static readonly Regex REGEX_1L_IF = GenRegex_1LIF();
+    private static readonly Regex REGEX_1L_FUNC = GenRegex_1LFUNC();
+    private static readonly Regex REGEX_FUNC_ASSG = GenRegex_FUNCASSIGNMENT();
+    private static readonly Regex REGEX_FUNC = GenRegex_FUNC();
+    private static readonly Regex REGEX_ENDFUNC = GenRegex_ENDFUNC();
+    private static readonly Regex REGEX_LABEL = GenRegex_LABEL();
+    private static readonly Regex REGEX_INCLUDEONCE = GenRegex_INCLUDEONCE();
+    private static readonly Regex REGEX_AUSTARTREGISTER = GenRegex_AUSTARTREGISTER();
+    private static readonly Regex REGEX_AUEXITREGISTER = GenRegex_AUEXITREGISTER();
+    private static readonly Regex REGEX_REQADMIN = GenRegex_REQADMIN();
+    private static readonly Regex REGEX_NOTRYICON = GenRegex_NOTRAYICON();
 
     private static readonly Func<string, (FileInfo physical, string content)?>[] _existing_resolvers =
     [
@@ -436,6 +437,68 @@ public sealed class ScriptScanner
     private static (FileInfo physical, string content)? ResolveHTTP(string path) => (new FileInfo(path), DataStream.FromWebResource(new Uri(path)).ToString());
 
     private static (FileInfo physical, string content)? ResolveFTP(string path) => (new FileInfo(path), DataStream.FromFTP(path).ToString());
+
+
+    #region Regex generators
+
+    [GeneratedRegex(@"^#notrayicon\b", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_NOTRAYICON();
+
+    [GeneratedRegex(@"^#requireadmin\b", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_REQADMIN();
+
+    [GeneratedRegex(@"^#(onautoitexitregister\s+""(?<func>[^""]+)"")", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_AUEXITREGISTER();
+
+    [GeneratedRegex(@"^#(onautoitstartregister\s+""(?<func>[^""]+)"")", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_AUSTARTREGISTER();
+    
+    [GeneratedRegex(@"^#include-once(\b|$)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_INCLUDEONCE();
+    
+    [GeneratedRegex(@"^(?<name>[a-z_]\w*)\s*:$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_LABEL();
+
+    [GeneratedRegex(@"^endfunc$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_ENDFUNC();
+
+    [GeneratedRegex(@"^((\s+|\b)(?<modifiers>volatile(\s+cached)?|cached(\s+volatile)?)(\s+|\b))?\s*\bfunc\s+(?<name>[a-z_]\w*)\s*\((?<args>.*)\)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_FUNC();
+
+    [GeneratedRegex(@"^(?<target>.+)=\s*(?<func>((\s+|\b)(?<modifiers>volatile(\s+cached)?|cached(\s+volatile)?)(\s+|\b))?\s*\bfunc)\s*(?<args>\(.*\))$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_FUNCASSIGNMENT();
+
+    [GeneratedRegex(@"^(?<decl>((\s+|\b)(?<modifiers>volatile(\s+cached)?|cached(\s+volatile)?)(\s+|\b))?\s*\bfunc\b\s*([a-z_]\w*)\s*\(.*\))\s*->\s*(?<body>.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_1LFUNC();
+
+    [GeneratedRegex(@"^\s*(?<if>if\b\s*.+\s*\bthen)\b\s*(?<then>.+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_1LIF();
+
+    [GeneratedRegex(@"(\s|^)_$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_LINECONT();
+
+    [GeneratedRegex(@"^#pragma\s+(?<option>[a-z_]\w+)\b\s*(\((?<params>.*)\))?\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_PRAGMA();
+
+    [GeneratedRegex(@"^#(end-?)?region\b", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_REGION();
+
+    [GeneratedRegex(@"^#(comments\-end|ce)(\b|$)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_CE();
+
+    [GeneratedRegex(@"^#(comments\-start|cs)(\b|$)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_CS();
+
+    [GeneratedRegex(@"\;[^\""\']*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_COMMENT();
+
+    [GeneratedRegex(@"^([^\""\;]*\""[^\""]*\""[^\""\;]*)*(?<cmt>\;).*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_COMMENT_AFTER_STRING1();
+
+    [GeneratedRegex(@"^([^'\;]*'[^']*'[^'\;]*)*(?<cmt>\;).*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "en-US")]
+    private static partial Regex GenRegex_COMMENT_AFTER_STRING2();
+
+    #endregion
 }
 
 /// <summary>
