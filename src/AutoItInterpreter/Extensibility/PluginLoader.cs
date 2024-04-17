@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -76,7 +77,6 @@ public sealed class PluginLoader
             dir.Create();
     }
 
-    /// <inheritdoc/>
     public override string ToString() => Interpreter.CurrentUILanguage["debug.plugins_loaded", _plugin_files.Count, Path.GetFullPath(PluginDirectory.FullName), PluginModuleCount];
 
     public void ClearLoadedPlugins()
@@ -88,12 +88,17 @@ public sealed class PluginLoader
         _resolvers.Clear();
     }
 
+    [RequiresUnreferencedCode($"The {nameof(LoadPlugins)} method requires loading assemblies from dynamically enumerated plugin files.")]
     public void LoadPlugins()
     {
         ClearLoadedPlugins();
 
         List<(Type Type, FileInfo PluginLocation)> types = [];
-        IEnumerable<FileInfo> assemblies = MainProgram.CommandLineOptions.StrictAU3Mode ? Array.Empty<FileInfo>() : PluginDirectory.EnumerateFiles("*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.Directory });
+        IEnumerable<FileInfo> assemblies = MainProgram.CommandLineOptions.StrictAU3Mode ? [] : PluginDirectory.EnumerateFiles("*", new EnumerationOptions {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.Directory
+        });
 
         foreach (FileInfo file in assemblies.Append(MainProgram.ASM_FILE))
             try
@@ -133,7 +138,7 @@ public sealed class PluginLoader
                     Interpreter.MacroResolver.AddKnownMacro(new KnownMacro(Interpreter, name, func) { Metadata = meta });
     }
 
-    private void TryRegister<T>(Type type, FileInfo location, List<T> plugin_list)
+    private void TryRegister<T>([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type, FileInfo location, List<T> plugin_list)
         where T : AbstractInterpreterPlugin
     {
         if (typeof(T).IsAssignableFrom(type))

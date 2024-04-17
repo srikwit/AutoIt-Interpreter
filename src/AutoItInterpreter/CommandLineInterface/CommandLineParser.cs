@@ -114,9 +114,6 @@ public abstract record CommandLineOptions
                 if (DontLoadPlugins)
                     opt = opt.Append((CommandLineParser.OPTION_NO_PLUGINS, null));
 
-                if (StrictAU3Mode)
-                    opt = opt.Append((CommandLineParser.OPTION_STRICT, null));
-
                 if (IgnoreErrors)
                     opt = opt.Append((CommandLineParser.OPTION_IGNORE_ERRORS, null));
 
