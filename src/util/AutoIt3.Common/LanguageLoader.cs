@@ -95,7 +95,9 @@ public sealed partial class LanguagePack
 {
     private static readonly Regex REGEX_YAML = new(@"^(?<indent> *)(?<quote>""|)(?<key>[^"":]+)\k<quote> *: *(?<value>""(?<string>.*)""|true|false|[+\-]\d+|[+\-]0x[0-9a-f]+|null)? *(#.*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex REGEX_ESCAPE = new(@"\\(?<esc>[rntve0baf\\""]|[xu][0-9a-f]{1,4})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex REGEX_NON_CSFMT_STRING = new(@"\{[^:\}]+:\d*[^\d\}].*?\}", RegexOptions.Compiled | RegexOptions.NonBacktracking);
+
+#warning todo: check if nonbacktracking is really necessary or if it is leading to bugs
+    private static readonly Regex REGEX_NON_CSFMT_STRING = new(@"\{[^:\}\{][^:\}]*:\d*[^\d\}].*?\}", RegexOptions.Compiled);
 
     private readonly IDictionary<string, string> _strings;
 
@@ -136,7 +138,7 @@ public sealed partial class LanguagePack
 
             if (fmt_str.Contains('{'))
             {
-                fmt_str = REGEX_NON_CSFMT_STRING.Replace(fmt_str, match => $"{{{match.Value}}}");
+                fmt_str = REGEX_NON_CSFMT_STRING.Replace(fmt_str, match => match.Value.Contains('|') ? $"{{{match.Value}}}" : match.Value);
                 formatted = string.Format(fmt_str, args);
             }
 

@@ -542,8 +542,17 @@ public partial class CommandLineParser(LanguagePack language)
         string content = match.Groups["content"].Value;
         string format = match.Groups["format"].Value;
         bool sindx = int.TryParse(content, out int index) && index < args.Length;
+        string? vt100 = null;
 
-        if (format.Length > 0 && stylesheet.VT100Styles.TryGetValue(format[1..], out string? vt100))
+        if (format.Length > 0)
+        {
+            if (format is [':', '|', ..])
+                stylesheet.VT100Styles.TryGetValue(format[2..], out vt100);
+            else if (format[0] is ':' or '|')
+               stylesheet.VT100Styles.TryGetValue(format[1..], out vt100);
+        }
+
+        if (vt100 is { })
             content = vt100 + (sindx ? args[index] : content) + stylesheet.DefaultVT100Style;
         else if (sindx)
             content = string.Format($"{{0{format}}}", args[index]);
@@ -558,31 +567,31 @@ public partial class CommandLineParser(LanguagePack language)
         string executable = NativeInterop.OperatingSystem is OS.Linux or OS.UnixLike or OS.MacOS ? "./autoit3" : "autoit3";
 
         return new HelpPage(Language["command_line.help.title"], [
-            new HelpSection(null, Language["command_line.help.intro", executable]),
+            new HelpSection(null, Language["command_line.help.intro"]),
             new HelpExamples(
                 Language["command_line.help.usage.header"],
                 null,
                 [
-                    ($"{executable:executable} {"--" + OPTION_HELP:option}", null),
-                    ($"{executable:executable} {"--" + OPTION_VERSION:option}", null),
-                    ($"{executable:executable} {"-m":option}{'i':value}", null),
-                    ($"{executable:executable} {$"[{Language["command_line.help.placeholder.options"]}]":optional} {$"<{Language["command_line.help.placeholder.script_path"]}>":placeholder} {$"[{Language["command_line.help.placeholder.script_args"]}]":optional}", null),
+                    ($"{executable:|executable} {"--" + OPTION_HELP:|option}", null),
+                    ($"{executable:|executable} {"--" + OPTION_VERSION:|option}", null),
+                    ($"{executable:|executable} {"-m":|option}{'i':|value}", null),
+                    ($"{executable:|executable} {$"[{Language["command_line.help.placeholder.options"]}]":|optional} {$"<{Language["command_line.help.placeholder.script_path"]}>":|placeholder} {$"[{Language["command_line.help.placeholder.script_args"]}]":|optional}", null),
                 ]
             ),
             new HelpReference(
                 null,
                 Language["command_line.help.options.syntax.text"],
                 [
-                    new(["{-o:option}"], Language["command_line.help.options.syntax.short_no_value"]),
-                    new(["{-o:option}{v:value}"], Language["command_line.help.options.syntax.short_value"]),
-                    new(["{-o:option}{value:value}"], Language["command_line.help.options.syntax.short_full_value"]),
-                    new(["{-o:option}:{v:value}"], Language["command_line.help.options.syntax.short_value"]),
-                    new(["{-o:option}:{value:value}"], Language["command_line.help.options.syntax.short_full_value"]),
-                    new(["{--option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
-                    new(["{--option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
-                    new(["{--option:option}={value:value}"], Language["command_line.help.options.syntax.long_value"]),
-                    new(["{/option:option}"], Language["command_line.help.options.syntax.long_no_value"]),
-                    new(["{/option:option} {value:value}"], Language["command_line.help.options.syntax.long_value"]),
+                    new(["{-o:|option}"], Language["command_line.help.options.syntax.short_no_value"]),
+                    new(["{-o:|option}{v:|value}"], Language["command_line.help.options.syntax.short_value"]),
+                    new(["{-o:|option}{value:|value}"], Language["command_line.help.options.syntax.short_full_value"]),
+                    new(["{-o:|option}:{v:|value}"], Language["command_line.help.options.syntax.short_value"]),
+                    new(["{-o:|option}:{value:|value}"], Language["command_line.help.options.syntax.short_full_value"]),
+                    new(["{--option:|option}"], Language["command_line.help.options.syntax.long_no_value"]),
+                    new(["{--option:|option} {value:|value}"], Language["command_line.help.options.syntax.long_value"]),
+                    new(["{--option:|option}={value:|value}"], Language["command_line.help.options.syntax.long_value"]),
+                    new(["{/option:|option}"], Language["command_line.help.options.syntax.long_no_value"]),
+                    new(["{/option:|option} {value:|value}"], Language["command_line.help.options.syntax.long_value"]),
                 ]
             ),
             new HelpReference(
@@ -591,13 +600,13 @@ public partial class CommandLineParser(LanguagePack language)
                 [
                     new(["-h", "-?", "--help"], Language["command_line.help.options.help"]),
                     new(["-V", "--version"], Language["command_line.help.options.version"]),
-                    new(["{-m:option}:{mode:placeholder}", "{--mode:option} {mode:placeholder}"], Language["command_line.help.options.mode.header"], default, [
+                    new(["{-m:|option}:{mode:|placeholder}", "{--mode:|option} {mode:|placeholder}"], Language["command_line.help.options.mode.header"], default, [
                         new(["n", "normal"], Language["command_line.help.options.mode.normal"], ValueProperties.DefaultValue),
                         new(["v", "view"], Language["command_line.help.options.mode.view"]),
                         new(["l", "line"], Language["command_line.help.options.mode.line"]),
                         new(["i", "interactive"], Language["command_line.help.options.mode.interactive"]),
                     ]),
-                    new(["{-v:option}:{level:placeholder}", "{--verbosity:option} {level:placeholder}"], Language["command_line.help.options.verbosity.header"], default, [
+                    new(["{-v:|option}:{level:|placeholder}", "{--verbosity:|option} {level:|placeholder}"], Language["command_line.help.options.verbosity.header"], default, [
                         new(["0", "q", "quiet"], Language["command_line.help.options.verbosity.quiet"], ValueProperties.DefaultValue),
                         new(["1", "n", "normal"], Language["command_line.help.options.verbosity.normal"]),
                         new(["2", "t", "telemetry"], Language["command_line.help.options.verbosity.telemetry"]),
@@ -608,12 +617,12 @@ public partial class CommandLineParser(LanguagePack language)
                     new(["-G", "--no-gui"], Language["command_line.help.options.no_gui"]),
                     new(["-s", "--strict"], Language["command_line.help.options.strict"]),
                     new(["-e", "--ignore-errors"], Language["command_line.help.options.ignore_errors"], OptionProperties.Unsafe),
-                    new(["{-u:option}:{mode:placeholder}", "{--update:option} {mode:placeholder}"], Language["command_line.help.options.update.header"], default, [
+                    new(["{-u:|option}:{mode:|placeholder}", "{--update:|option} {mode:|placeholder}"], Language["command_line.help.options.update.header"], default, [
                         new(["r", "release"], Language["command_line.help.options.update.release"], ValueProperties.DefaultValue),
                         new(["b", "beta"], Language["command_line.help.options.update.beta"]),
                         new(["n", "none"], Language["command_line.help.options.update.none"]),
                     ]),
-                    new(["{-l:option}:{lang_code:placeholder}", "{--lang:option} {lang_code:placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
+                    new(["{-l:|option}:{lang_code:|placeholder}", "{--lang:|option} {lang_code:|placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
                     new(["--ErrorStdOut"], Language["command_line.help.options.redirect_stderr"]),
                     new(["--"], Language["command_line.help.options.ignore_subsequent"]),
                     new(["-t", "--telemetry"], Language["command_line.help.same_as", "{--verbosity:option} {telemetry:value}"], OptionProperties.Obsolete),
@@ -628,15 +637,15 @@ public partial class CommandLineParser(LanguagePack language)
                 Language["command_line.help.examples.header"],
                 null,
                 [
-                    ($"{executable:executable} {"--" + OPTION_VERSION:option}", Language["command_line.help.examples.version"]),
-                    ($"{executable:executable} {"-m":option}{'i':value}", Language["command_line.help.examples.interactive"]),
-                    ($"{executable:executable} {"~/scripts/hello_world.au3":placeholder}", Language["command_line.help.examples.run_script"]),
-                    ($"{executable:executable} {"-m":option}{'v':value} {"http://example.com/script.au3":placeholder}", Language["command_line.help.examples.view_script"]),
-                    ($"{executable:executable} {"-m":option}{'l':value} \"ConsoleWrite(@AUTOIT_EXE)\"", Language["command_line.help.examples.run_line", ScriptVisualizer.VisualizeScriptAsVT100("ConsoleWrite(@AUTOIT_EXE)", false)]),
+                    ($"{executable:|executable} {"--" + OPTION_VERSION:|option}", Language["command_line.help.examples.version"]),
+                    ($"{executable:|executable} {"-m":|option}{'i':|value}", Language["command_line.help.examples.interactive"]),
+                    ($"{executable:|executable} {"~/scripts/hello_world.au3":|placeholder}", Language["command_line.help.examples.run_script"]),
+                    ($"{executable:|executable} {"-m":|option}{'v':|value} {"http://example.com/script.au3":|placeholder}", Language["command_line.help.examples.view_script"]),
+                    ($"{executable:|executable} {"-m":|option}{'l':|value} \"ConsoleWrite(@AUTOIT_EXE)\"", Language["command_line.help.examples.run_line", ScriptVisualizer.VisualizeScriptAsVT100("ConsoleWrite(@AUTOIT_EXE)", false)]),
 
 #warning TODO : add more examples
-                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
-                    //($"{executable:executable} {"-m":option}{'n':value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":|option}{'n':|value} <script_path> -- -arg1 -arg2", Language["command_line.help.examples.script_args"]),
+                    //($"{executable:executable} {"-m":|option}{'n':|value} <script_path> -arg1 -arg2", Language["command_line.help.examples.script_args"]),
                 ]
             ),
             new HelpSection(null, Language["command_line.help.outro", __module__.RepositoryURL]),
@@ -683,7 +692,6 @@ public partial class CommandLineParser(LanguagePack language)
                 ["error"] = RGBAColor.Red.ToVT100ForegroundString(),
                 ["warning"] = RGBAColor.Orange.ToVT100ForegroundString(),
                 ["placeholder"] = RGBAColor.Plum.ToVT100ForegroundString(),
-                ["description"] = RGBAColor.White.ToVT100ForegroundString(),
             },
             "\e[0m"
         );
@@ -691,12 +699,12 @@ public partial class CommandLineParser(LanguagePack language)
         const int OPTION_WIDTH = 45;
         StringBuilder sb = new();
 
-        sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:header}\n", stylesheet));
+        sb.AppendLine(FormatHelpString($"\e[1m{help_page.Title:|header}\n", stylesheet));
 
         foreach (HelpSection section in help_page.Sections)
         {
             if (section.Header is string header)
-                sb.AppendLine(FormatHelpString($"{{{header}:header}}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet, []));
+                sb.AppendLine(FormatHelpString($"{{{header}:|header}}{(string.IsNullOrEmpty(section.Text) ? "" : '\n' + section.Text)}", stylesheet, []));
             else if (!string.IsNullOrEmpty(section.Text))
                 sb.AppendLine(FormatHelpString(section.Text, stylesheet, []));
 
@@ -719,13 +727,13 @@ public partial class CommandLineParser(LanguagePack language)
                     string descr = option.Description;
 
                     if (option.Properties.HasFlag(OptionProperties.Unsafe))
-                        descr = $"{{[{Language["command_line.help.options.unsafe"]}]:warning}} {descr}";
+                        descr = $"{{[{Language["command_line.help.options.unsafe"]}]:|warning}} {descr}";
                     else if (option.Properties.HasFlag(OptionProperties.Obsolete))
-                        descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
+                        descr = $"{{[{Language["command_line.help.options.obsolete"]}]:|warning}} {descr}";
 
                     sb.Append(FormatOption(
                         INDENT,
-                        FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:option}}").StringJoin(", "), stylesheet, []),
+                        FormatHelpString(option.Options.Select(opt => opt.Contains('{') ? opt : $"{{{opt}:|option}}").StringJoin(", "), stylesheet, []),
                         OPTION_WIDTH,
                         FormatHelpString(descr, stylesheet, []),
                         console_width
@@ -736,13 +744,13 @@ public partial class CommandLineParser(LanguagePack language)
                         descr = value.Description;
 
                         if (value.Properties.HasFlag(ValueProperties.DefaultValue))
-                            descr = $"{{[{Language["command_line.help.options.default"]}]:optional}} {descr}";
+                            descr = $"{{[{Language["command_line.help.options.default"]}]:|optional}} {descr}";
                         else if (value.Properties.HasFlag(ValueProperties.Obsolete))
-                            descr = $"{{[{Language["command_line.help.options.obsolete"]}]:warning}} {descr}";
+                            descr = $"{{[{Language["command_line.help.options.obsolete"]}]:|warning}} {descr}";
 
                         sb.Append(FormatOption(
                             2 * INDENT,
-                            FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:value}}").StringJoin(", "), stylesheet, []),
+                            FormatHelpString(value.Values.Select(val => val.Contains('{') ? val : $"{{{val}:|value}}").StringJoin(", "), stylesheet, []),
                             OPTION_WIDTH,
                             FormatHelpString(descr, stylesheet, []),
                             console_width
@@ -750,8 +758,7 @@ public partial class CommandLineParser(LanguagePack language)
                     }
                 }
 
-            sb.AppendLine()
-              .AppendLine();
+            sb.AppendLine();
         }
 
         return sb.ToString().TrimEnd();

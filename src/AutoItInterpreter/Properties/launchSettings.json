@@ -2,7 +2,7 @@
     "profiles": {
         "AutoItInterpreter": {
             "commandName": "Project",
-            "commandLineArgs": "-ml $ -vv",
+            "commandLineArgs": "-vv test",
             "nativeDebugging": false
         }
     }

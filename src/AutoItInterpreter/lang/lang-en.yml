@@ -41,7 +41,7 @@ strings:
         usage_hint: "Use \"autoit3 --help\" to seee the usage reference. Alternatively, you can refer to \e[4mhttps://github.com/Unknown6656/AutoIt-Interpreter/wiki/Usage\e[24m."
         help:
             title: "AutoIt Interpreter CLI Usage"
-            intro: "The {0:executable} executable provides a command-line interface for executing AutoIt3 scripts and performing various tasks. Below is a reference guide for using autoit3 from the command line."
+            intro: "This application provides a command-line interface for executing AutoIt3 scripts and performing various tasks. Below is a reference guide for using autoit3 from the command line."
             usage:
                 header: "Usage"
             placeholder:
@@ -55,26 +55,26 @@ strings:
                 default: "DEFAULT"
                 syntax:
                     text: "Please note that all options are parsable using one of the following syntaxes:"
-                    short_no_value: "Sets the option abbreviated with {o:option} to a value of \"{true:value}\"."
-                    short_value: "Sets the option abbreviated with {o:option} to \"{v:value}\" (or pre-defined values starting with \"{v:value}\")."
-                    short_full_value: "Sets the option abbreviated with {o:option} to the given value \"{value:value}\"."
-                    long_no_value: "Sets {option:option} to a value of \"{true:value}\"."
-                    long_value: "Sets {option:option} to the given value \"{value:value}\"."
+                    short_no_value: "Sets the option abbreviated with {o:|option} to a value of \"{true:|value}\"."
+                    short_value: "Sets the option abbreviated with {o:|option} to \"{v:|value}\" (or pre-defined values starting with \"{v:|value}\")."
+                    short_full_value: "Sets the option abbreviated with {o:|option} to the given value \"{value:|value}\"."
+                    long_no_value: "Sets {option:|option} to a value of \"{true:|value}\"."
+                    long_value: "Sets {option:|option} to the given value \"{value:|value}\"."
                 header: "Options"
                 help: "Shows this help message."
                 version: "Shows the interpreter's version."
                 mode:
                     header: "The interpreter's execution mode. Possible values are the following:"
-                    normal: "Runs the AutoIt script provided by {script_path:placeholder}."
+                    normal: "Runs the AutoIt script provided by {script_path:|placeholder}."
                     view: "Displays a syntax-highlighted version of the script."
-                    line: "Executes the AutoIt code provided by {script_path:placeholder} directly (meaning that {script_path:placeholder} will be directly interpreted as AutoIt code)."
+                    line: "Executes the AutoIt code provided by {script_path:|placeholder} directly (meaning that {script_path:|placeholder} will be directly interpreted as AutoIt code)."
                     interactive: "Starts the AutoIt interactive shell."
                 verbosity:
                     header: "The AutoIt's verbosity level. Possible values are the following:"
                     quiet: "Only the script's output and error messages will be printed."
                     normal: "Prints the script's output and error messages, as well as overall timing information and the script's numeric exit code."
                     telemetry: "Prints the interpreter telemetry. All telemetry data \e[4mstays\e[24m on this machine contrary to what this option might imply. \e[4mNo part\e[24m of the telemetry will be uploaded to an external (web)server."
-                    verbose: "Implies the value {t:value}, as well as all internal interpreter debugging messages."
+                    verbose: "Implies the value {t:|value}, as well as all internal interpreter debugging messages."
                 no_plugins: "Prevents the loading of interpreter plugins/extensions."
                 no_com: "Prevents the loading of the COM connector (Windows only)."
                 no_gui: "Prevents the loading of the GUI connector."
@@ -85,12 +85,12 @@ strings:
                     release: "Only fetch newer versions of the AutoIt interpreter if they're ready for general use."
                     beta: "Releases marked as \"beta\" or \"pre-release\" will be included in the search for the newest update. These versions are probable to include some bugs."
                     none: "Updates will not be fetched, even if newer software version are available."
-                language: "The CLI language code to be used by the compiler shell. The default value is \"{en:value}\" for the English language pack.\nLanguage packs are fetched from the following directory: \"{0}\""
+                language: "The CLI language code to be used by the compiler shell. The default value is \"{en:|value}\" for the English language pack.\nLanguage packs are fetched from the following directory: \"{0}\""
                 redirect_stderr: "Redirects the standard error stream to the standard output stream."
                 ignore_subsequent: "Passes all subsequent arguments as script arguments."
             script_path:
                 header: "Script Path"
-                text: "The path to the AutoIt3 script file to be executed. This argument is required if not used with \"{--mode:option} {interactive:value}\". If the option \"{--mode:option} {line:value}\" is set, {script_path:placeholder} will be interpreted directly as executable AutoIt3 code."
+                text: "The path to the AutoIt3 script file to be executed. This argument is required if not used with \"{--mode:|option} {interactive:|value}\". If the option \"{--mode:|option} {line:|value}\" is set, {script_path:|placeholder} will be interpreted directly as executable AutoIt3 code."
             script_args:
                 header: "Script Arguments"
                 text: "The arguments to be passed to the AutoIt3 script or interactive shell."
