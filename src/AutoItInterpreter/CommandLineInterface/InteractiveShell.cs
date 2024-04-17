@@ -1076,7 +1076,7 @@ public sealed class InteractiveShell
         if (suggest_all || curr_token?.Type is TokenType.Variable)
         {
             Variable[] vars = [.. Variables.LocalVariables, .. Interpreter.VariableResolver.GlobalVariables];
-            int name_length = vars.Max(v => v.Name.Length);
+            int name_length = vars.Select(v => v.Name.Length).Append(0).Max();
 
             vars.Select(variable =>
             {

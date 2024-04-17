@@ -229,9 +229,11 @@ public sealed class VariableScope
             scope.DestroyAllVariables(recursive);
 
         _children.Clear();
+        _variables.Clear();
 
-        if (recursive && Parent is { } p)
-            p.DestroyAllVariables(recursive);
+#warning TODO : check if destruction of parent scope is really needed
+        if (recursive && this != Parent && Parent is { } p)
+            p.DestroyAllVariables(false);
     }
 
     /// <summary>
