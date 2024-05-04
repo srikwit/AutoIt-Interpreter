@@ -89,9 +89,14 @@ public abstract record CommandLineOptions
     public sealed record ViewMode
         : CommandLineOptions
     {
+        public override required bool StrictAU3Mode { get; set; }
         public required string FilePath { get; set; }
+        public required int TabWidth { get; set; }
 
-        private protected override IEnumerable<(string option, object? value)> Options => base.Options.Append((CommandLineParser.OPTION_MODE, ExecutionMode.View));
+        private protected override IEnumerable<(string option, object? value)> Options => base.Options.Concat([
+            (CommandLineParser.OPTION_MODE, ExecutionMode.View),
+            (CommandLineParser.OPTION_TAB_WIDTH, TabWidth),
+        ]);
 
         public override string Serialize() => $"{base.Serialize()} \"{FilePath}\"";
     }
@@ -207,12 +212,14 @@ public partial class CommandLineParser(LanguagePack language)
     internal const string OPTION_TELEMETRY = "telemetry"; // TODO: phase out this option in the future
     internal const string OPTION_VERBOSITY = "verbosity";
     internal const string OPTION_VERSION = "version";
+    internal const string OPTION_TAB_WIDTH = "tab-width";
     internal const string OPTION_REDIRECT_STDOUT = "ErrorStdOut";
     internal const string OPTION_EXECUTE_SCRIPT = "AutoIt3ExecuteScript";
     internal const string OPTION_EXECUTE_LINE = "AutoIt3ExecuteLine";
 
 
     public LanguagePack Language { get; private set; } = language;
+
 
     private static string? TryMapShortOption(char short_option) => short_option switch
     {
@@ -225,6 +232,7 @@ public partial class CommandLineParser(LanguagePack language)
         't' or 'T' => OPTION_TELEMETRY,
         'u' or 'U' => OPTION_CHECK_FOR_UPDATE,
         'l' or 'L' => OPTION_LANG,
+        'w' or 'W' => OPTION_TAB_WIDTH,
         '?' => OPTION_HELP,
         'v' => OPTION_VERBOSITY,
         'V' => OPTION_VERSION,
@@ -294,10 +302,12 @@ public partial class CommandLineParser(LanguagePack language)
             else if (normalized_option is OPTION_CHECK_FOR_UPDATE)
                 set_enum_option(ref raw.updatemode, value);
             else if (normalized_option is OPTION_VERBOSITY)
-            {
-#warning TODO : add parsing for -vv
                 set_enum_option(ref raw.verbosity, value);
-            }
+            else if (normalized_option is OPTION_TAB_WIDTH)
+                if (int.TryParse(value ?? "4", out int tab_width) && tab_width is > 0 and <= 32)
+                    set_option(ref raw.tab_width, tab_width);
+                else
+                    errors.Add(new(index, Language["command_line.error.invalid_tab_width", value], true));
             else if (normalized_option is OPTION_LANG)
                 set_option(ref raw.langcode, value ?? raw.langcode);
             else if (normalized_option is OPTION_NO_PLUGINS or OPTION_NO_GUI or OPTION_NO_COM or OPTION_STRICT or OPTION_IGNORE_ERRORS or OPTION_HELP or OPTION_VERSION
@@ -421,6 +431,7 @@ public partial class CommandLineParser(LanguagePack language)
         UpdaterMode updatemode = raw.updatemode ?? UpdaterMode.Release;
         ExecutionMode execmode = raw.execmode ?? ExecutionMode.Normal;
         string langcode = raw.langcode ?? Language.LanguageCode;
+        bool strict_au3 = raw.strict_au3 ?? false;
 
         if (raw.show_help ?? false)
             return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity };
@@ -430,10 +441,17 @@ public partial class CommandLineParser(LanguagePack language)
             if (raw.script_path is null)
                 errors.Add(new(-1, Language["command_line.error.missing_file_path"], true));
             else
-                return new CommandLineOptions.ViewMode { LanguageCode = langcode, UpdaterMode = updatemode, FilePath = raw.script_path, VerbosityLevel = verbosity };
+                return new CommandLineOptions.ViewMode
+                {
+                    TabWidth = raw.tab_width ?? 4,
+                    LanguageCode = langcode,
+                    UpdaterMode = updatemode,
+                    FilePath = raw.script_path,
+                    VerbosityLevel = verbosity,
+                    StrictAU3Mode = strict_au3
+                };
         else
         {
-            bool strict_au3 = raw.strict_au3 ?? false;
             bool no_plugins = raw.no_plugins ?? false;
             bool ignore_errors = raw.ignore_errors ?? false;
             bool redirect_stderr = raw.redirect_stderr ?? false;
@@ -579,7 +597,7 @@ public partial class CommandLineParser(LanguagePack language)
                 ]
             ),
             new HelpReference(
-                null,
+                Language["command_line.help.options.syntax.header"],
                 Language["command_line.help.options.syntax.text"],
                 [
                     new(["{-o:|option}"], Language["command_line.help.options.syntax.short_no_value"]),
@@ -622,6 +640,7 @@ public partial class CommandLineParser(LanguagePack language)
                         new(["b", "beta"], Language["command_line.help.options.update.beta"]),
                         new(["n", "none"], Language["command_line.help.options.update.none"]),
                     ]),
+                    new(["{-w:|option}:{tab_width:|placeholder}", "{--tab-width:|option} {tab_width:|placeholder}"], Language["command_line.help.options.tab_width"]),
                     new(["{-l:|option}:{lang_code:|placeholder}", "{--lang:|option} {lang_code:|placeholder}"], Language["command_line.help.options.language", MainProgram.LANG_DIR]),
                     new(["--ErrorStdOut"], Language["command_line.help.options.redirect_stderr"]),
                     new(["--"], Language["command_line.help.options.ignore_subsequent"]),
@@ -685,7 +704,7 @@ public partial class CommandLineParser(LanguagePack language)
             new()
             {
                 ["header"] = "\e[1m\e[4m" + RGBAColor.NavajoWhite.ToVT100ForegroundString(),
-                ["executable"] = RGBAColor.LightSteelBlue.ToVT100ForegroundString(),
+                ["executable"] = RGBAColor.LightSkyBlue.ToVT100ForegroundString(),
                 ["optional"] = RGBAColor.Gray.ToVT100ForegroundString(),
                 ["option"] = RGBAColor.Coral.ToVT100ForegroundString(),
                 ["value"] = RGBAColor.LightGreen.ToVT100ForegroundString(),
@@ -744,7 +763,7 @@ public partial class CommandLineParser(LanguagePack language)
                         descr = value.Description;
 
                         if (value.Properties.HasFlag(ValueProperties.DefaultValue))
-                            descr = $"{{[{Language["command_line.help.options.default"]}]:|optional}} {descr}";
+                            descr = $"{{({Language["command_line.help.options.default"]}):|optional}} {descr}";
                         else if (value.Properties.HasFlag(ValueProperties.Obsolete))
                             descr = $"{{[{Language["command_line.help.options.obsolete"]}]:|warning}} {descr}";
 
@@ -776,6 +795,7 @@ public partial class CommandLineParser(LanguagePack language)
         public bool? no_plugins = null;
         public bool? no_com = null;
         public bool? no_gui = null;
+        public int? tab_width = null;
         public bool? show_help = null;
         public bool? show_version = null;
         public bool? redirect_stderr = null;
