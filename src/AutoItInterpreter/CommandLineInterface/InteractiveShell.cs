@@ -25,6 +25,7 @@ public sealed class InteractiveShell
     public const int MIN_WIDTH = 128;
 
     internal static readonly string[] KNOWN_OPERATORS = ["+", "-", "*", "/", "+=", "-=", "*=", "/=", "&", "&=", "^", "<=", "<", ">", ">=", "<>", "=", "=="];
+    private static readonly string[] DO_NOT_SUGGEST = ["_", "$_", "$GLOBAL"];
     private static readonly Regex REGEX_END_OF_MULTILINE = new(@"^(.*\s+)?(?<sep>_)$", RegexOptions.Compiled);
     private static readonly RGBAColor COLOR_HELP_FG = 0xffff;
     private static readonly RGBAColor COLOR_SEPARATOR = 0xfaaa;
@@ -40,6 +41,7 @@ public sealed class InteractiveShell
     private readonly FileInfo _interactive_tmp_path;
 
     private Index _current_cursor_pos = ^0;
+    private bool _forceredraw;
     private bool _isdisposed;
 
 
@@ -127,8 +129,6 @@ public sealed class InteractiveShell
             return cursor == 0 ? tokens[0] : tokens.FirstOrDefault(t => t.CharIndex < cursor && cursor <= t.CharIndex + t.TokenLength);
         }
     }
-
-    private static readonly string[] second = ["_", "$_", "$GLOBAL"];
 
 
     /// <summary>
@@ -231,7 +231,7 @@ public sealed class InteractiveShell
 
                 bool candraw = WIDTH >= MIN_WIDTH && HEIGHT >= 32;
 
-                if (width != WIDTH || height != HEIGHT)
+                if (width != WIDTH || height != HEIGHT || _forceredraw)
                 {
                     Console.Clear();
 
@@ -258,7 +258,7 @@ public sealed class InteractiveShell
 
                 (int Left, int Top, int InputAreaYOffset) cursor = RedrawInputArea(false);
 
-                if (hist_count != History.Count || hist_index != HistoryScrollIndex || cursor.InputAreaYOffset != input_y)
+                if (hist_count != History.Count || hist_index != HistoryScrollIndex || cursor.InputAreaYOffset != input_y || _forceredraw)
                 {
                     RedrawHistoryArea(cursor.InputAreaYOffset);
                     RedrawThreadAndVariableWatchers();
@@ -267,7 +267,7 @@ public sealed class InteractiveShell
                     hist_index = HistoryScrollIndex;
                     input_y = cursor.InputAreaYOffset;
                 }
-                else if (Interpreter.Threads.Length > 1)
+                else if (Interpreter.Threads.Length > 1 || _forceredraw)
                     RedrawThreadAndVariableWatchers();
 
                 Console.CursorLeft = cursor.Left;
@@ -276,6 +276,7 @@ public sealed class InteractiveShell
                 if (NativeInterop.OperatingSystem.HasFlag(OS.Windows))
                     Console.CursorVisible = true;
 
+                _forceredraw = false;
                 IsCurrentlyDrawing = false;
 
                 HandleKeyPress();
@@ -851,21 +852,36 @@ public sealed class InteractiveShell
         AU3Thread[] threads = Interpreter.Threads;
         int left = WIDTH - MARGIN_RIGHT;
         int top = MARGIN_TOP + 1;
-        StringBuilder sb = new();
-
-        sb.AppendLine($"Threads ({threads.Length}):");
+        string fg = COLOR_PROMPT.ToVT100ForegroundString();
+        List<string> lines = [
+            $"{fg}Threads ({threads.Length}):"
+        ];
 
         foreach (AU3Thread thread in threads)
         {
-            sb.AppendLine($" - Thread {thread.ThreadID} (0x{thread.ThreadID:x8})");
-            sb.AppendLine($"   Status: {(thread.IsRunning ? "Active" : "Paused/Stopped/Interactive")} {(thread.IsMainThread ? " (Main)" : "")}");
-            sb.AppendLine($"   Stack frames ({thread.CallStack.Length}):   <TODO>");
+            (RGBAColor color, string status) = thread.IsRunning ? (RGBAColor.Green, "Active") : (RGBAColor.LightSalmon, "Paused/Stopped/Interactive");
 
-            //sb.AppendLine($"  Func: {thread.CurrentFunction}");
+            lines.Add($"> Thread {(thread.IsMainThread ? "[Main] " : "")}{ScriptVisualizer.VisualizeScriptAsVT100($"{thread.ThreadID} (0x{thread.ThreadID:x8})", false)}{fg}");
+            lines.Add($"  Status: {color.ToVT100ForegroundString()}{status}{fg}");
+            lines.Add($"  Call stack ({thread.CallStack.Length}):");
+
+            foreach (AU3CallFrame frame in thread.CallStack)
+            {
+                string path = frame.CurrentLocation.FullFileName;
+
+                LINQ.TryDo(() => path = Path.GetFileName(path));
+
+                lines.Add($"   - {path}, L.{frame.CurrentLocation.StartLineNumber + 1}");
+                lines.Add($"     {frame.CurrentFunction.Name}");
+            }
         }
 
-        ConsoleExtensions.RGBForegroundColor = COLOR_PROMPT;
-        ConsoleExtensions.WriteBlock(sb.ToString(), left, top, MARGIN_RIGHT, MARGIN_TOP);
+        foreach (string line in lines.Take(MARGIN_TOP))
+        {
+            Console.CursorLeft = left;
+            Console.CursorTop = top++;
+            Console.Write(line.PadRight(MARGIN_RIGHT));
+        }
 
         top = Console.CursorTop + 1;
 
@@ -937,6 +953,8 @@ public sealed class InteractiveShell
         CallFrame.VariableResolver.DestroyAllVariables(true);
 
         Clear();
+
+        _forceredraw = true;
     }
 
     /// <summary>
@@ -1099,7 +1117,7 @@ public sealed class InteractiveShell
 
         if (suggest_all || curr_token?.Type is TokenType.Keyword or TokenType.Identifier or TokenType.FunctionCall)
         {
-            add_suggestions(ScriptFunction.RESERVED_NAMES.Except(second), TokenType.Keyword);
+            add_suggestions(ScriptFunction.RESERVED_NAMES.Except(DO_NOT_SUGGEST), TokenType.Keyword);
 
             ScriptFunction[] functions = Interpreter.ScriptScanner.CachedFunctions.Where(f => !string.IsNullOrWhiteSpace(f.Name)).ToArray();
             int name_length = functions.Max(f => f.Name.Length);
