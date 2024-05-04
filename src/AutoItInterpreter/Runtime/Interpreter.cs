@@ -154,13 +154,9 @@ public sealed class Interpreter
         MacroResolver = new MacroResolver(this);
         FunctionCache = new FunctionCache(this);
         GlobalObjectStorage = new GlobalObjectStorage(this);
-
-        string[] args = (opt as CommandLineOptions.RunMode)?.ScriptArguments ?? [];
-
         VariableResolver = VariableScope.CreateGlobalScope(this);
-        VariableResolver.CreateVariable(SourceLocation.Unknown, VARIABLE.Discard.Name, false);
-        VariableResolver.CreateConstant("$CmdLineRaw", Variant.FromString(args.StringJoin(" ")));
-        VariableResolver.CreateConstant("$CmdLine", Variant.FromArray(this, args.Select(Variant.FromString).Prepend(Variant.FromNumber(args.Length))));
+
+        ResetGlobalVariableScope();
 
         PluginLoader = new PluginLoader(this, MainProgram.PLUGIN_DIR);
 
@@ -188,6 +184,18 @@ public sealed class Interpreter
 
         Random = new BuiltinRandom();
         ResetRandom();
+    }
+
+    public void ResetGlobalVariableScope()
+    {
+        string[] args = (CommandLineOptions as CommandLineOptions.RunMode)?.ScriptArguments ?? [];
+        string[] rawargs = [MainProgram.ASM_FILE.FullName, ..(CommandLineOptions as CommandLineOptions.RunMode)?.RawCommandLineString];
+
+        VariableResolver.DestroyAllVariables(true);
+        VariableResolver.CreateVariable(SourceLocation.Unknown, VARIABLE.Discard.Name, false).Value = Variant.Null;
+        VariableResolver.CreateConstant("$CmdLineRaw", Variant.FromString(args.StringJoin(" ")));
+        VariableResolver.CreateConstant("$CmdLine", Variant.FromArray(this, args.Select(Variant.FromString).Prepend(Variant.FromNumber(args.Length))));
+        VariableResolver.CreateConstant("$CmdLineFull", Variant.FromArray(this, rawargs.Select(Variant.FromString).Prepend(Variant.FromNumber(rawargs.Length))));
     }
 
     /// <summary>

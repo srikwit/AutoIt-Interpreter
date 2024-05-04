@@ -950,7 +950,7 @@ public sealed class InteractiveShell
         CurrentInput = "";
 
         Variables.DestroyAllVariables(true);
-        CallFrame.VariableResolver.DestroyAllVariables(true);
+        Interpreter.ResetGlobalVariableScope();
 
         Clear();
 

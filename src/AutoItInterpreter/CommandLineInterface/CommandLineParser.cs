@@ -47,6 +47,7 @@ public abstract record CommandLineOptions
     public required UpdaterMode UpdaterMode { get; set; }
     public required VerbosityLevel VerbosityLevel { get; set; }
     public virtual bool StrictAU3Mode { get; set; } = true;
+    public required string[] RawCommandLineString { get; set; }
 
     public bool VerboseOutput => VerbosityLevel >= VerbosityLevel.Verbose;
 
@@ -434,9 +435,9 @@ public partial class CommandLineParser(LanguagePack language)
         bool strict_au3 = raw.strict_au3 ?? false;
 
         if (raw.show_help ?? false)
-            return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity };
+            return new CommandLineOptions.ShowHelp { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity, RawCommandLineString = argv };
         else if (raw.show_version ?? false)
-            return new CommandLineOptions.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity };
+            return new CommandLineOptions.ShowVersion { LanguageCode = langcode, UpdaterMode = updatemode, VerbosityLevel = verbosity, RawCommandLineString = argv };
         else if (execmode is ExecutionMode.View)
             if (raw.script_path is null)
                 errors.Add(new(-1, Language["command_line.error.missing_file_path"], true));
@@ -448,7 +449,8 @@ public partial class CommandLineParser(LanguagePack language)
                     UpdaterMode = updatemode,
                     FilePath = raw.script_path,
                     VerbosityLevel = verbosity,
-                    StrictAU3Mode = strict_au3
+                    StrictAU3Mode = strict_au3,
+                    RawCommandLineString = argv
                 };
         else
         {
@@ -467,6 +469,7 @@ public partial class CommandLineParser(LanguagePack language)
                     StrictAU3Mode = strict_au3,
                     VerbosityLevel = verbosity,
                     ScriptArguments = [.. raw.script_options],
+                    RawCommandLineString = argv
                 };
             else if (string.IsNullOrWhiteSpace(raw.script_path))
                 errors.Add(new(-1, Language[execmode is ExecutionMode.Line ? "command_line.error.missing_au3_code_line" : "command_line.error.missing_file_path"], true));
@@ -489,6 +492,7 @@ public partial class CommandLineParser(LanguagePack language)
                         DisableGUIConnector = no_gui,
                         Code = raw.script_path,
                         ScriptArguments = [.. raw.script_options],
+                        RawCommandLineString = argv
                     };
                 else
                     return new CommandLineOptions.RunMode.NonInteractiveMode.RunScript
@@ -504,6 +508,7 @@ public partial class CommandLineParser(LanguagePack language)
                         DisableGUIConnector = no_gui,
                         FilePath = raw.script_path,
                         ScriptArguments = [.. raw.script_options],
+                        RawCommandLineString = argv
                     };
             }
         }
